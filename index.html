@@ -178,84 +178,74 @@ body{
 }
 .choice.in{transform:translateY(0);opacity:1}
 
-/* ---- 结局显影(双栏:立绘碎裂显影 + 信息侧) ---- */
+/* ---- 结局显影(三横切片居中进入 → 清晰 → 移左,右侧出信息) ---- */
 #ending{position:fixed;inset:0;background:var(--bg-0);
-  display:none;z-index:40;opacity:0;transition:opacity 1.2s ease;
-  align-items:center;justify-content:center;gap:clamp(20px,5vw,80px);
-  padding:clamp(24px,5vw,80px);}
-#ending.show{display:flex;opacity:1}
+  display:none;z-index:40;opacity:0;transition:opacity 1s ease;}
+#ending.show{display:block;opacity:1}
 
-/* 立绘侧 */
-.end-portrait{position:relative;
-  width:min(42vw,440px);height:min(82vh,660px);flex-shrink:0;}
+/* 立绘容器:初始居中,shifted 后移到左侧 */
+.end-portrait{position:absolute;top:50%;left:50%;
+  width:min(46vh,360px);height:min(88vh,720px);
+  transform:translate(-50%,-50%);
+  transition:left 1.1s cubic-bezier(.5,0,.2,1),
+             transform 1.1s cubic-bezier(.5,0,.2,1);}
+#ending.shifted .end-portrait{left:26%;}
+@media(max-width:760px){#ending.shifted .end-portrait{left:50%;top:34%}}
+
 .ep-warm{position:absolute;left:50%;top:46%;
-  width:130%;height:90%;transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse at center,
-    rgba(232,201,143,.16),transparent 62%);
-  filter:blur(20px);opacity:0;transition:opacity 2s ease 1s;}
-.end-portrait.reveal .ep-warm{opacity:1}
+  width:150%;height:100%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center,rgba(232,201,143,.16),transparent 62%);
+  filter:blur(22px);opacity:0;transition:opacity 1.6s ease .6s;}
+#ending.revealed .ep-warm{opacity:1}
 
-/* 上半身裁切:统一放大 + 焦点上移。sil 与 real 共用同一 background 定位 */
-.ep-sil,.ep-real{position:absolute;inset:0;
+/* 三条横切片:各占 1/3 高,拼成完整立绘 */
+.slice{position:absolute;left:0;width:100%;height:33.34%;
   background-repeat:no-repeat;
-  background-size:175%;              /* 放大取上半身 */
-  background-position:center 8%;      /* 焦点上移到头胸 */
+  background-size:100% 300%;        /* 纵向拉成 3 倍,配合 position-y 取段 */
+  background-position-x:center;
+  opacity:0;
+  filter:blur(16px);
+  transition:opacity .9s ease,filter 1.1s ease,transform 1s cubic-bezier(.4,0,.2,1);
 }
-/* 白剪影外壳(初始态) */
-.ep-sil{filter:blur(6px) drop-shadow(0 0 24px rgba(234,244,255,.5));
-  opacity:.9;transition:opacity .5s;}
-.end-portrait.reveal .ep-sil{opacity:0;transition:opacity .6s ease .35s;}
-/* 彩色真身(碎裂后显现) */
-.ep-real{opacity:0;filter:blur(14px);
-  -webkit-mask-image:radial-gradient(ellipse 68% 90% at 50% 30%,#000 60%,transparent 82%);
-  mask-image:radial-gradient(ellipse 68% 90% at 50% 30%,#000 60%,transparent 82%);}
-.end-portrait.reveal .ep-real{opacity:1;filter:blur(0);
-  transition:opacity 1.4s ease .4s,filter 1.6s ease .4s;}
+.slice-0{top:0;      background-position-y:0%;    transform:translateX(-60px);}
+.slice-1{top:33.33%; background-position-y:50%;   transform:translateX(60px);}
+.slice-2{top:66.66%; background-position-y:100%;  transform:translateX(-60px);}
+/* 进入并清晰:归位 + 去模糊 */
+#ending.revealed .slice{opacity:1;filter:blur(0);transform:translateX(0);}
 
-/* 玻璃碎裂层:碎片各自飞散旋转 */
-.ep-shatter{position:absolute;inset:0;pointer-events:none;}
-.ep-shatter .frag{position:absolute;inset:0;
-  background-image:inherit;background-size:175%;background-position:center 8%;
-  background-repeat:no-repeat;
-  opacity:0;will-change:transform,opacity;}
-.end-portrait.shatter .ep-shatter .frag{animation:fragFly 1.2s cubic-bezier(.3,.7,.4,1) forwards;}
-@keyframes fragFly{
-  0%{opacity:.85}
-  100%{opacity:0;
-    transform:translate(var(--fx),var(--fy)) rotate(var(--fr)) scale(.7);}
+/* 信息侧:初始隐藏,shifted 后滑入右侧 */
+.end-info{position:absolute;top:50%;right:8%;left:auto;
+  transform:translateY(-50%) translateX(24px);
+  max-width:min(42vw,460px);
+  opacity:0;transition:opacity 1s ease,transform 1s ease;}
+#ending.shifted .end-info{opacity:1;transform:translateY(-50%) translateX(0);}
+@media(max-width:760px){
+  .end-info{top:auto;bottom:4vh;right:6%;left:6%;max-width:none;
+    transform:translateX(0);text-align:center;}
+  #ending.shifted .end-info{transform:translateX(0)}
 }
-/* 碎片微光边 */
-.ep-shatter .frag::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,.5),transparent 55%);
-  mix-blend-mode:screen;}
 
-/* 信息侧 */
-.end-info{position:relative;max-width:440px;flex:1;
-  opacity:0;transform:translateX(14px);
-  transition:opacity 1.2s ease 1.1s,transform 1.2s ease 1.1s;}
-.end-portrait.reveal ~ .end-info,
-#ending.revealed .end-info{opacity:1;transform:translateX(0)}
-.op-eyebrow{color:var(--warm);letter-spacing:.42em;font-size:.82rem;
+.op-eyebrow{color:var(--warm);letter-spacing:.42em;font-size:.86rem;
   font-family:"Noto Sans SC",sans-serif;margin-bottom:1em;}
-.op-name{font-size:clamp(2.6rem,6vw,4.2rem);letter-spacing:.16em;
+.op-name{font-size:clamp(3rem,7vw,5rem);letter-spacing:.16em;
   color:var(--glow);line-height:1.1;
-  text-shadow:0 0 40px rgba(234,244,255,.4);}
-.op-goldline{width:64px;height:1px;margin:28px 0 30px;
+  text-shadow:0 0 44px rgba(234,244,255,.42);}
+.op-goldline{width:72px;height:1px;margin:30px 0 32px;
   background:linear-gradient(90deg,var(--warm),transparent);}
-.op-ending{font-size:clamp(1rem,1.9vw,1.14rem);line-height:2.1;color:var(--ink);}
+.op-ending{font-size:clamp(1.04rem,2vw,1.24rem);line-height:2.15;color:var(--ink);}
 .op-ending p{margin-bottom:1.1em;opacity:0;transform:translateY(8px);
   animation:lineIn .9s ease forwards;}
 @keyframes lineIn{to{opacity:1;transform:translateY(0)}}
-.end-actions{margin-top:2.6em;display:flex;gap:14px;flex-wrap:wrap;}
-#reunion,#replay{background:none;padding:13px 28px;letter-spacing:.2em;
+.end-actions{margin-top:2.8em;display:flex;gap:14px;flex-wrap:wrap;}
+#reunion,#replay{background:none;padding:14px 30px;letter-spacing:.2em;
   font-family:"Noto Sans SC",sans-serif;cursor:pointer;border-radius:2px;
-  font-size:.84rem;transition:all .3s;}
+  font-size:.86rem;transition:all .3s;}
 #reunion{border:1px solid var(--warm-deep);color:var(--warm);}
 #reunion:hover{background:rgba(232,201,143,.1);box-shadow:0 0 26px rgba(232,201,143,.14)}
 #replay{border:1px solid var(--line);color:var(--ink-dim);}
 #replay:hover{border-color:var(--ink-dim);color:var(--ink)}
-
-/* 重逢剧情覆盖层 */
+@media(max-width:760px){.end-actions{justify-content:center}
+  .op-goldline{margin-left:auto;margin-right:auto}}
 #reunion-scene{position:fixed;inset:0;z-index:50;display:none;
   background:var(--bg-0);}
 #reunion-scene.show{display:block}
@@ -380,12 +370,12 @@ body{
 
 <!-- 结局显影 -->
 <div id="ending">
-  <!-- 立绘侧:白剪影碎裂 → 彩色真身显影 -->
+  <!-- 立绘侧:三横切片居中进入 → 清晰 → 移到左侧 -->
   <div class="end-portrait">
-    <div class="ep-warm"></div>                <!-- 立绘侧暖光 -->
-    <div class="ep-sil"></div>                 <!-- 白剪影外壳 -->
-    <div class="ep-real"></div>                <!-- 彩色真身 -->
-    <div class="ep-shatter"></div>             <!-- 玻璃碎裂层 -->
+    <div class="ep-warm"></div>
+    <div class="slice slice-0"></div>
+    <div class="slice slice-1"></div>
+    <div class="slice slice-2"></div>
   </div>
   <!-- 信息侧 -->
   <div class="end-info">

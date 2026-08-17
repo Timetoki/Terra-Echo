@@ -222,24 +222,18 @@ const UI = (() => {
   }
   function clearChoices() { choicesEl.innerHTML = ""; }
 
-  /* ---- 结局显影:白剪影碎裂 → 彩色真身 ---- */
+  /* ---- 结局显影:三横切片居中进入 → 清晰 → 移左出信息 ---- */
   let curOp = null;
   function showEnding(op) {
     curOp = op;
     const box = $("#ending");
-    const portrait = box.querySelector(".end-portrait");
-    const sil = box.querySelector(".ep-sil");
-    const real = box.querySelector(".ep-real");
-    const shatter = box.querySelector(".ep-shatter");
+    const slices = box.querySelectorAll(".slice");
 
-    // 装载立绘:白剪影 + 彩色真身
+    // 三条切片装载同一张彩色立绘(CSS 用 position-y 各取一段)
     if (op && op.file) {
-      sil.style.backgroundImage  = `url("assets/silhouettes/${op.file}")`;
-      real.style.backgroundImage = `url("assets/portraits/${op.file}")`;
-      shatter.style.backgroundImage = `url("assets/portraits/${op.file}")`;
+      const url = `url("assets/portraits/${op.file}")`;
+      slices.forEach(s => s.style.backgroundImage = url);
     }
-    // 生成碎片(继承 shatter 的 background)
-    buildFragments(shatter);
 
     // 文字
     box.querySelector(".op-name").textContent = op ? op.name : "???";
@@ -249,46 +243,26 @@ const UI = (() => {
     lines.forEach((t, i) => {
       const p = document.createElement("p");
       p.textContent = t;
-      p.style.animationDelay = (1.8 + i * 0.9) + "s";
+      p.style.animationDelay = (0.4 + i * 0.9) + "s";   // 信息侧滑入后再逐行
       endWrap.appendChild(p);
     });
-    // 无重逢剧情则隐藏"走近"按钮
     const reBtn = $("#reunion");
     reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
 
-    // 序列:显示 → 碎裂 → 真身显影 + 信息浮现
-    box.classList.remove("revealed");
-    portrait.classList.remove("reveal","shatter");
+    // 序列:显示 → 切片清晰归位(居中) → 停顿 → 移左 + 信息滑入
+    box.classList.remove("revealed", "shifted");
     box.classList.add("show");
-    setTimeout(() => portrait.classList.add("shatter"), 700);   // 碎裂
-    setTimeout(() => {
-      portrait.classList.add("reveal");                          // 真身显影
-      box.classList.add("revealed");                             // 信息侧浮现
-    }, 1100);
-  }
-
-  // 把立绘切成网格碎片,各自赋随机飞散方向
-  function buildFragments(shatter) {
-    shatter.innerHTML = "";
-    const COLS = 5, ROWS = 7;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const f = document.createElement("div");
-        f.className = "frag";
-        const x0 = c / COLS * 100, x1 = (c + 1) / COLS * 100;
-        const y0 = r / ROWS * 100, y1 = (r + 1) / ROWS * 100;
-        // 每片只显示自己那一格(用 clip-path 矩形)
-        f.style.clipPath = `polygon(${x0}% ${y0}%,${x1}% ${y0}%,${x1}% ${y1}%,${x0}% ${y1}%)`;
-        // 飞散:离中心越远飞得越猛
-        const cx = (c + .5) / COLS - .5, cy = (r + .5) / ROWS - .5;
-        const dist = 120 + Math.random() * 120;
-        f.style.setProperty("--fx", (cx * dist).toFixed(0) + "px");
-        f.style.setProperty("--fy", (cy * dist + 40).toFixed(0) + "px");
-        f.style.setProperty("--fr", ((Math.random()*2-1)*70).toFixed(0) + "deg");
-        f.style.animationDelay = (Math.random()*0.18).toFixed(2) + "s";
-        shatter.appendChild(f);
-      }
-    }
+    // 切片错开时间进入并清晰
+    slices.forEach((s, i) => {
+      s.style.transitionDelay = (i * 0.22) + "s";
+    });
+    requestAnimationFrame(() => {
+      setTimeout(() => box.classList.add("revealed"), 60);   // 切片进入+清晰
+      setTimeout(() => {                                      // 清晰后移左出信息
+        slices.forEach(s => s.style.transitionDelay = "0s");
+        box.classList.add("shifted");
+      }, 1900);
+    });
   }
 
   /* ---- 重逢剧情:点"走近那个人"后拉起 ---- */
