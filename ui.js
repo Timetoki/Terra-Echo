@@ -229,10 +229,10 @@ const UI = (() => {
     const box = $("#ending");
     const slices = box.querySelectorAll(".slice");
 
-    // 三条切片装载同一张彩色立绘(CSS 用 position-y 各取一段)
+    // 三条切片的内层装载同一张彩色立绘(contain 保持比例)
     if (op && op.file) {
       const url = `url("assets/portraits/${op.file}")`;
-      slices.forEach(s => s.style.backgroundImage = url);
+      box.querySelectorAll(".slice-img").forEach(el => el.style.backgroundImage = url);
     }
 
     // 文字

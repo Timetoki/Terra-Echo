@@ -198,18 +198,25 @@ body{
   filter:blur(22px);opacity:0;transition:opacity 1.6s ease .6s;}
 #ending.revealed .ep-warm{opacity:1}
 
-/* 三条横切片:各占 1/3 高,拼成完整立绘 */
+/* 三条横切片:各占容器 1/3 高,内层保持立绘原比例(contain) */
 .slice{position:absolute;left:0;width:100%;height:33.34%;
-  background-repeat:no-repeat;
-  background-size:100% 300%;        /* 纵向拉成 3 倍,配合 position-y 取段 */
-  background-position-x:center;
+  overflow:hidden;
   opacity:0;
   filter:blur(16px);
   transition:opacity .9s ease,filter 1.1s ease,transform 1s cubic-bezier(.4,0,.2,1);
 }
-.slice-0{top:0;      background-position-y:0%;    transform:translateX(-60px);}
-.slice-1{top:33.33%; background-position-y:50%;   transform:translateX(60px);}
-.slice-2{top:66.66%; background-position-y:100%;  transform:translateX(-60px);}
+/* 内层:高度=容器全高(3倍切片高),保持比例,再靠负 top 露出对应段 */
+.slice-img{position:absolute;left:0;width:100%;height:300%;
+  background-repeat:no-repeat;background-position:center;
+  background-size:contain;      /* 保持原比例,不拉伸 */
+}
+.slice-0{top:0;}       .slice-0 .slice-img{top:0;}
+.slice-1{top:33.33%;}  .slice-1 .slice-img{top:-100%;}
+.slice-2{top:66.66%;}  .slice-2 .slice-img{top:-200%;}
+/* 入场错位 */
+.slice-0{transform:translateX(-60px);}
+.slice-1{transform:translateX(60px);}
+.slice-2{transform:translateX(-60px);}
 /* 进入并清晰:归位 + 去模糊 */
 #ending.revealed .slice{opacity:1;filter:blur(0);transform:translateX(0);}
 
@@ -373,9 +380,9 @@ body{
   <!-- 立绘侧:三横切片居中进入 → 清晰 → 移到左侧 -->
   <div class="end-portrait">
     <div class="ep-warm"></div>
-    <div class="slice slice-0"></div>
-    <div class="slice slice-1"></div>
-    <div class="slice slice-2"></div>
+    <div class="slice slice-0"><div class="slice-img"></div></div>
+    <div class="slice slice-1"><div class="slice-img"></div></div>
+    <div class="slice slice-2"><div class="slice-img"></div></div>
   </div>
   <!-- 信息侧 -->
   <div class="end-info">
