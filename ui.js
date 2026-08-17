@@ -222,11 +222,26 @@ const UI = (() => {
   }
   function clearChoices() { choicesEl.innerHTML = ""; }
 
-  /* ---- 结局显影 ---- */
+  /* ---- 结局显影:白剪影碎裂 → 彩色真身 ---- */
+  let curOp = null;
   function showEnding(op) {
+    curOp = op;
     const box = $("#ending");
-    const flash = box.querySelector(".reveal-flash");
-    const card = box.querySelector(".op-card");
+    const portrait = box.querySelector(".end-portrait");
+    const sil = box.querySelector(".ep-sil");
+    const real = box.querySelector(".ep-real");
+    const shatter = box.querySelector(".ep-shatter");
+
+    // 装载立绘:白剪影 + 彩色真身
+    if (op && op.file) {
+      sil.style.backgroundImage  = `url("assets/silhouettes/${op.file}")`;
+      real.style.backgroundImage = `url("assets/portraits/${op.file}")`;
+      shatter.style.backgroundImage = `url("assets/portraits/${op.file}")`;
+    }
+    // 生成碎片(继承 shatter 的 background)
+    buildFragments(shatter);
+
+    // 文字
     box.querySelector(".op-name").textContent = op ? op.name : "???";
     const endWrap = box.querySelector(".op-ending");
     endWrap.innerHTML = "";
@@ -234,15 +249,85 @@ const UI = (() => {
     lines.forEach((t, i) => {
       const p = document.createElement("p");
       p.textContent = t;
-      p.style.animationDelay = (1.2 + i * 0.9) + "s";
+      p.style.animationDelay = (1.8 + i * 0.9) + "s";
       endWrap.appendChild(p);
     });
-    box.querySelector(".op-tier").textContent =
-      op ? (op.tier === "core" ? "" : "· 日常线 ·") : "";
+    // 无重逢剧情则隐藏"走近"按钮
+    const reBtn = $("#reunion");
+    reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
 
+    // 序列:显示 → 碎裂 → 真身显影 + 信息浮现
+    box.classList.remove("revealed");
+    portrait.classList.remove("reveal","shatter");
     box.classList.add("show");
-    flash.classList.add("fire");           // 白光爆闪
-    setTimeout(() => card.classList.add("in"), 900);
+    setTimeout(() => portrait.classList.add("shatter"), 700);   // 碎裂
+    setTimeout(() => {
+      portrait.classList.add("reveal");                          // 真身显影
+      box.classList.add("revealed");                             // 信息侧浮现
+    }, 1100);
+  }
+
+  // 把立绘切成网格碎片,各自赋随机飞散方向
+  function buildFragments(shatter) {
+    shatter.innerHTML = "";
+    const COLS = 5, ROWS = 7;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const f = document.createElement("div");
+        f.className = "frag";
+        const x0 = c / COLS * 100, x1 = (c + 1) / COLS * 100;
+        const y0 = r / ROWS * 100, y1 = (r + 1) / ROWS * 100;
+        // 每片只显示自己那一格(用 clip-path 矩形)
+        f.style.clipPath = `polygon(${x0}% ${y0}%,${x1}% ${y0}%,${x1}% ${y1}%,${x0}% ${y1}%)`;
+        // 飞散:离中心越远飞得越猛
+        const cx = (c + .5) / COLS - .5, cy = (r + .5) / ROWS - .5;
+        const dist = 120 + Math.random() * 120;
+        f.style.setProperty("--fx", (cx * dist).toFixed(0) + "px");
+        f.style.setProperty("--fy", (cy * dist + 40).toFixed(0) + "px");
+        f.style.setProperty("--fr", ((Math.random()*2-1)*70).toFixed(0) + "deg");
+        f.style.animationDelay = (Math.random()*0.18).toFixed(2) + "s";
+        shatter.appendChild(f);
+      }
+    }
+  }
+
+  /* ---- 重逢剧情:点"走近那个人"后拉起 ---- */
+  function startReunion() {
+    if (!curOp || !curOp.reunion) return;
+    const layer = $("#reunion-scene");
+    const bg = layer.querySelector(".rs-bg");
+    if (curOp.file) bg.style.backgroundImage = `url("assets/portraits/${curOp.file}")`;
+    layer.classList.add("show");
+    const speaker = layer.querySelector(".rs-speaker");
+    const dlg = layer.querySelector(".rs-dialogue");
+    const hint = layer.querySelector(".rs-hint");
+    let idx = 0;
+    const lines = curOp.reunion;
+    let rTyping = false, rTimer = null, rFull = "";
+    function play() {
+      const line = lines[idx];
+      // 支持 "名字|台词" 格式
+      let sp = "", tx = line;
+      const bar = line.indexOf("|");
+      if (bar > -1) { sp = line.slice(0, bar); tx = line.slice(bar + 1); }
+      speaker.textContent = sp;
+      rTyping = true; rFull = tx; hint.classList.remove("show");
+      dlg.textContent = ""; let i = 0;
+      clearInterval(rTimer);
+      rTimer = setInterval(() => {
+        if (i <= tx.length) { dlg.textContent = tx.slice(0, i); i++; }
+        else { clearInterval(rTimer); rTyping = false; hint.classList.add("show"); }
+      }, 40);
+    }
+    function next() {
+      if (rTyping) { clearInterval(rTimer); dlg.textContent = rFull; rTyping = false;
+                     hint.classList.add("show"); return; }
+      idx++;
+      if (idx < lines.length) play();
+      else layer.classList.remove("show");   // 剧情结束,回到结算
+    }
+    layer.onclick = next;
+    play();
   }
 
   /* ---- 普瑞塞斯 meta:在所有 UI 之前 ---- */
@@ -280,7 +365,7 @@ const UI = (() => {
   });
 
   return { initScene, setBackground, setSilhouetteStage, renderNode,
-           showEnding, showPrologueMeta };
+           showEnding, showPrologueMeta, startReunion };
 })();
 
 /* ---- 随机玻璃碎片多边形 clip-path ---- */
