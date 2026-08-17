@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>回响 · 泰拉</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+:root{
+  /* 冷色记忆基调 —— 深蓝黑到暗青,白光为唯一亮部 */
+  --bg-0:#070f18;      /* 最深背景 */
+  --bg-1:#0a1420;      /* 场景底 */
+  --ink:#dfe8f2;       /* 正文 */
+  --ink-dim:#8296ac;   /* 次要文字 */
+  --line:#1e3049;      /* 分隔/边框 */
+  --glow:#eaf4ff;      /* 白光剪影 */
+  --warm:#e8c98f;      /* 结局暖金,一次性介入 */
+  --warm-deep:#c99a54;
+  --panel:rgba(8,16,26,.82);
+  --choice:rgba(18,32,50,.72);
+  --choice-hi:rgba(34,58,88,.9);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg-0);
+  color:var(--ink);
+  font-family:"Noto Serif SC",Georgia,"Songti SC",serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---- 舞台 ---- */
+#stage{position:fixed;inset:0;display:flex;flex-direction:column;
+  transition:background 1.2s ease;}
+#scene{position:absolute;inset:0;overflow:hidden}
+
+/* 场景氛围:漂浮的源石尘埃 */
+.dust{position:absolute;width:2px;height:2px;border-radius:50%;
+  background:var(--glow);opacity:0;pointer-events:none;
+  animation:drift linear infinite}
+@keyframes drift{
+  0%{transform:translateY(105vh);opacity:0}
+  10%{opacity:.5}
+  90%{opacity:.5}
+  100%{transform:translateY(-5vh);opacity:0}
+}
+
+/* ---- 白光剪影(核心母题) ---- */
+#silhouette{
+  position:absolute;left:50%;top:52%;
+  transform:translate(-50%,-50%);
+  width:min(46vh,340px);height:min(72vh,540px);
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;transition:filter 1.6s ease,opacity 1.6s ease;
+}
+#silhouette svg{width:100%;height:100%}
+#silhouette .form{
+  fill:var(--glow);
+  transition:opacity 1.2s ease;
+}
+/* 光晕 */
+#silhouette::after{
+  content:"";position:absolute;left:50%;top:50%;
+  width:120%;height:120%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center,
+    rgba(234,244,255,.22),transparent 62%);
+  filter:blur(6px);pointer-events:none;
+}
+
+/* ---- 剧情框 ---- */
+#textbox{
+  position:relative;margin-top:auto;
+  background:linear-gradient(180deg,transparent,var(--panel) 22%);
+  padding:clamp(28px,6vh,68px) clamp(20px,7vw,120px) clamp(30px,5vh,54px);
+  min-height:34vh;display:flex;flex-direction:column;justify-content:flex-end;
+}
+#speaker{color:var(--warm);font-size:.86rem;letter-spacing:.28em;
+  margin-bottom:.7em;min-height:1.1em;font-family:"Noto Sans SC",sans-serif;}
+#dialogue{font-size:clamp(1.02rem,2.2vw,1.34rem);line-height:2;
+  max-width:52em;min-height:3.6em;}
+#dialogue .cursor{display:inline-block;width:.5em;color:var(--warm);
+  animation:blink 1s step-start infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* 继续提示 */
+#continue-hint{margin-top:1.2em;color:var(--ink-dim);font-size:.82rem;
+  letter-spacing:.2em;opacity:0;transition:opacity .4s;
+  font-family:"Noto Sans SC",sans-serif;}
+#continue-hint.show{opacity:.7}
+
+/* ---- 选项卡 ---- */
+#choices{position:absolute;left:0;right:0;bottom:calc(34vh + 12px);
+  display:flex;flex-direction:column;gap:12px;align-items:center;
+  padding:0 clamp(20px,7vw,120px);pointer-events:none;}
+.choice{
+  pointer-events:auto;width:min(52em,100%);
+  background:var(--choice);border:1px solid var(--line);
+  color:var(--ink);text-align:left;
+  padding:16px 22px;font-size:clamp(.94rem,1.9vw,1.08rem);
+  font-family:"Noto Sans SC",sans-serif;line-height:1.6;
+  cursor:pointer;border-radius:2px;
+  transform:translateY(8px);opacity:0;
+  transition:background .25s,border-color .25s,transform .4s,opacity .4s;
+  backdrop-filter:blur(3px);
+}
+.choice:hover,.choice:focus-visible{
+  background:var(--choice-hi);border-color:#3c6294;outline:none;
+  transform:translateY(0) translateX(4px);
+}
+.choice.in{transform:translateY(0);opacity:1}
+
+/* ---- 结局显影 ---- */
+#ending{position:fixed;inset:0;background:var(--bg-0);
+  display:none;align-items:center;justify-content:center;flex-direction:column;
+  z-index:40;opacity:0;transition:opacity 1.4s ease;}
+#ending.show{display:flex;opacity:1}
+.reveal-flash{position:absolute;inset:0;background:var(--glow);
+  opacity:0;pointer-events:none;}
+.reveal-flash.fire{animation:flash 1.8s ease forwards}
+@keyframes flash{0%{opacity:0}18%{opacity:.9}100%{opacity:0}}
+
+.op-card{position:relative;z-index:2;text-align:center;
+  padding:48px 40px;max-width:640px;opacity:0;transform:translateY(18px);
+  transition:opacity 1.2s ease .5s,transform 1.2s ease .5s;}
+.op-card.in{opacity:1;transform:translateY(0)}
+.op-eyebrow{color:var(--warm);letter-spacing:.4em;font-size:.8rem;
+  font-family:"Noto Sans SC",sans-serif;margin-bottom:1.4em;}
+.op-name{font-size:clamp(2.4rem,7vw,4rem);letter-spacing:.14em;
+  color:var(--glow);margin-bottom:.1em;
+  text-shadow:0 0 34px rgba(234,244,255,.35);}
+.op-name::after{content:"";display:block;width:56px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--warm),transparent);
+  margin:26px auto 30px;}
+.op-ending{font-size:clamp(1rem,2.1vw,1.16rem);line-height:2.1;
+  color:var(--ink);text-align:left;}
+.op-ending p{margin-bottom:1.1em;opacity:0;transform:translateY(8px);
+  animation:lineIn .9s ease forwards;}
+@keyframes lineIn{to{opacity:1;transform:translateY(0)}}
+.op-tier{margin-top:2.4em;color:var(--ink-dim);font-size:.78rem;
+  letter-spacing:.24em;font-family:"Noto Sans SC",sans-serif;}
+#replay{margin-top:2.6em;background:none;border:1px solid var(--line);
+  color:var(--ink-dim);padding:12px 30px;letter-spacing:.24em;
+  font-family:"Noto Sans SC",sans-serif;cursor:pointer;border-radius:2px;
+  transition:all .3s;font-size:.82rem;}
+#replay:hover{border-color:var(--warm-deep);color:var(--warm)}
+
+/* ---- 普瑞塞斯 meta 前置层(在所有 UI 之前) ---- */
+#meta{position:fixed;inset:0;z-index:90;display:none;
+  background:#02060b;color:#c9f0ff;
+  align-items:center;justify-content:center;flex-direction:column;
+  font-family:"Noto Sans SC",monospace,sans-serif;}
+#meta.show{display:flex}
+#meta::before{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,
+    rgba(120,220,255,.03) 0px,rgba(120,220,255,.03) 1px,
+    transparent 1px,transparent 3px);pointer-events:none;}
+.meta-inner{max-width:640px;padding:40px;position:relative;z-index:2}
+.meta-tag{color:#4fd4ff;letter-spacing:.4em;font-size:.74rem;
+  margin-bottom:2.4em;opacity:.7}
+#meta-lines p{font-size:clamp(1.02rem,2.2vw,1.28rem);line-height:2.1;
+  margin-bottom:1.2em;opacity:0;transform:translateX(-6px);}
+#meta-lines p.in{opacity:1;transform:translateX(0);
+  transition:opacity .8s,transform .8s;}
+.meta-name{color:#eaf4ff;font-size:2rem;letter-spacing:.3em;
+  margin:1.4em 0;text-shadow:0 0 30px rgba(120,220,255,.5);}
+
+/* ---- 开场标题 ---- */
+#title-screen{position:fixed;inset:0;z-index:60;background:var(--bg-0);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  transition:opacity 1s;}
+#title-screen.hide{opacity:0;pointer-events:none}
+.tt-main{font-size:clamp(3rem,11vw,6rem);letter-spacing:.5em;
+  color:var(--glow);text-shadow:0 0 40px rgba(234,244,255,.3);
+  padding-left:.5em;}
+.tt-sub{color:var(--ink-dim);letter-spacing:.5em;margin-top:1.2em;
+  font-family:"Noto Sans SC",sans-serif;font-size:.9rem;}
+#start-btn{margin-top:3.4em;background:none;border:1px solid var(--line);
+  color:var(--ink);padding:15px 46px;letter-spacing:.34em;cursor:pointer;
+  font-family:"Noto Sans SC",sans-serif;border-radius:2px;font-size:.9rem;
+  transition:all .35s;}
+#start-btn:hover{border-color:var(--warm-deep);color:var(--warm);
+  box-shadow:0 0 30px rgba(232,201,143,.12)}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.2s!important}
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="scene"></div>
+  <div id="silhouette"></div>
+
+  <div id="choices"></div>
+
+  <div id="textbox">
+    <div id="speaker"></div>
+    <div id="dialogue"></div>
+    <div id="continue-hint">▾ 点击继续</div>
+  </div>
+</div>
+
+<!-- 开场标题 -->
+<div id="title-screen">
+  <div class="tt-main">回响</div>
+  <div class="tt-sub">ECHO · TERRA</div>
+  <button id="start-btn">开始寻找</button>
+</div>
+
+<!-- 结局显影 -->
+<div id="ending">
+  <div class="reveal-flash"></div>
+  <div class="op-card">
+    <div class="op-eyebrow">你要找的人是——</div>
+    <div class="op-name"></div>
+    <div class="op-ending"></div>
+    <div class="op-tier"></div>
+    <button id="replay">再寻找一次</button>
+  </div>
+</div>
+
+<!-- 普瑞塞斯 meta 层 -->
+<div id="meta">
+  <div class="meta-inner">
+    <div class="meta-tag">// SYSTEM OVERRIDE</div>
+    <div id="meta-lines"></div>
+    <button id="replay-meta" style="margin-top:2em;background:none;
+      border:1px solid #1e4a5a;color:#4fd4ff;padding:12px 30px;
+      letter-spacing:.24em;font-family:inherit;cursor:pointer;border-radius:2px">
+      重新开始观测</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="ui.js"></script>
+<script src="engine.js"></script>
+<script>
+  UI.initScene();
+  document.getElementById("start-btn").addEventListener("click",()=>{
+    document.getElementById("title-screen").classList.add("hide");
+    setTimeout(()=>ENGINE.startGame(),700);
+  });
+  document.getElementById("replay").addEventListener("click",()=>location.reload());
+  document.getElementById("replay-meta").addEventListener("click",()=>location.reload());
+</script>
+</body>
+</html>
