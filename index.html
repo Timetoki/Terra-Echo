@@ -65,46 +65,60 @@ body{
   filter:blur(10px);transition:opacity 1.2s;
 }
 
-/* 阶段1:一团模糊白光(无定形,水泡流动) */
+/* 阶段1:一团很虚的模糊白光(柔光打底 + 湍流叠加) */
 #silhouette .blob{
   position:absolute;left:50%;top:50%;
-  width:62%;height:52%;transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse at 45% 40%,
-    #ffffff, var(--glow) 40%, rgba(200,224,255,.4) 70%, transparent 82%);
+  width:70%;height:60%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at 48% 42%,
+    rgba(255,255,255,.85), rgba(234,244,255,.5) 34%,
+    rgba(200,224,255,.22) 60%, transparent 78%);
   border-radius:48% 52% 55% 45% / 58% 48% 52% 42%;
-  filter:url(#bubble) blur(3px);
-  opacity:0;transition:opacity 1.2s;
-  animation:blobPulse 9s ease-in-out infinite;
+  filter:url(#bubble) blur(22px);
+  opacity:0;transition:opacity 1.4s;
+  animation:blobPulse 11s ease-in-out infinite;
+}
+/* 叠一层更大更虚的外光晕,强化"虚幻白光"感 */
+#silhouette .blob::after{
+  content:"";position:absolute;left:50%;top:50%;
+  width:150%;height:150%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center,
+    rgba(234,244,255,.4),transparent 60%);
+  filter:blur(30px);
 }
 @keyframes blobPulse{
   0%,100%{transform:translate(-50%,-50%) scale(1)   rotate(0deg)}
-  33%    {transform:translate(-50%,-52%) scale(1.08) rotate(4deg)}
-  66%    {transform:translate(-50%,-49%) scale(.94) rotate(-3deg)}
+  33%    {transform:translate(-50%,-52%) scale(1.1)  rotate(3deg)}
+  66%    {transform:translate(-50%,-49%) scale(.92) rotate(-3deg)}
 }
 
-/* 阶段2:模糊人影(有轮廓,仍水泡晃动) */
+/* 阶段2:很虚的模糊人影(白光人形,非实心) */
 #silhouette .figure{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
-  filter:url(#bubble);
+  filter:url(#bubble) blur(14px);
   opacity:0;transition:opacity 1.4s;
 }
-#silhouette .figure svg{width:100%;height:100%}
-#silhouette .figure .form{fill:var(--glow)}
+#silhouette .figure svg{width:100%;height:100%;
+  filter:drop-shadow(0 0 24px rgba(234,244,255,.7));}
+#silhouette .figure .form{fill:rgba(255,255,255,.72)}
 
-/* 阶段3:立绘轮播(水波纹 + 玻璃碎片切换) */
+/* 阶段3:放大的白色立绘剪影(用 mask 从透明底立绘取形,填白) */
 #silhouette .portraits{
-  position:absolute;inset:0;opacity:0;transition:opacity 1.2s;
+  position:fixed;left:50%;bottom:26vh;top:auto;
+  transform:translateX(-50%);
+  width:min(52vh,400px);height:60vh;
+  opacity:0;transition:opacity 1.2s;
+  z-index:5;
 }
 #silhouette .portrait{
   position:absolute;inset:0;
-  background-size:contain;background-repeat:no-repeat;background-position:center;
+  background-repeat:no-repeat;background-position:bottom center;
+  background-size:contain;
   opacity:0;
-  filter:url(#ripple) blur(6px) brightness(1.15);
+  filter:url(#ripple) blur(9px) drop-shadow(0 0 26px rgba(234,244,255,.5));
   transition:opacity 1.1s ease;
-  mix-blend-mode:screen;   /* 白底立绘融进白光 */
 }
-#silhouette .portrait.active{opacity:.92}
+#silhouette .portrait.active{opacity:.88}
 
 /* 玻璃碎片层:切换瞬间几块不规则多边形错位闪光 */
 #silhouette .shards{position:absolute;inset:0;pointer-events:none;opacity:0}

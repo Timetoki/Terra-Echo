@@ -36,13 +36,13 @@ const UI = (() => {
         <div class="portrait" data-slot="0"></div>
         <div class="portrait" data-slot="1"></div>
         <div class="portrait" data-slot="2"></div>
-      </div>
-      <div class="shards">
-        ${Array.from({length:6}).map((_,i)=>{
-          const pts = randomShardClip();
-          const dx = (Math.random()*2-1)*40, dy=(Math.random()*2-1)*40;
-          return `<div class="shard" style="clip-path:${pts};--dx:${dx}px;--dy:${dy}px"></div>`;
-        }).join("")}
+        <div class="shards">
+          ${Array.from({length:6}).map((_,i)=>{
+            const pts = randomShardClip();
+            const dx = (Math.random()*2-1)*40, dy=(Math.random()*2-1)*40;
+            return `<div class="shard" style="clip-path:${pts};--dx:${dx}px;--dy:${dy}px"></div>`;
+          }).join("")}
+        </div>
       </div>`;
   }
 
@@ -90,7 +90,7 @@ const UI = (() => {
     const files = cands.filter(c => c && c.file).map(c => c.file);
     slots.forEach((el, i) => {
       if (files[i]) {
-        el.style.backgroundImage = `url("assets/portraits/${files[i]}")`;
+        el.style.backgroundImage = `url("assets/silhouettes/${files[i]}")`;
         el.dataset.has = "1";
       } else {
         el.style.backgroundImage = "";
