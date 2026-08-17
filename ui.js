@@ -13,8 +13,9 @@ const UI = (() => {
 
   let typing = false, typeTimer = null, onAdvance = null;
   let curFull = "", curDone = null;
+  let justCompleted = false;   // 一句刚显示完整,需再点一下才推进
 
-  /* ---- 场景:漂浮尘埃 + 剪影初始化 ---- */
+  /* ---- 场景:漂浮尘埃 + 三阶段剪影初始化 ---- */
   function initScene() {
     for (let i = 0; i < 26; i++) {
       const d = document.createElement("div");
@@ -22,24 +23,106 @@ const UI = (() => {
       d.style.left = Math.random() * 100 + "vw";
       d.style.animationDuration = (10 + Math.random() * 14) + "s";
       d.style.animationDelay = -(Math.random() * 20) + "s";
-      const s = 1 + Math.random() * 2;
-      d.style.width = d.style.height = s + "px";
+      const sz = 1 + Math.random() * 2;
+      d.style.width = d.style.height = sz + "px";
       scene.appendChild(d);
     }
-    sil.innerHTML = SIL_SVG;
+    // 三阶段结构
+    sil.innerHTML = `
+      <div class="halo"></div>
+      <div class="blob"></div>
+      <div class="figure">${SIL_SVG}</div>
+      <div class="portraits">
+        <div class="portrait" data-slot="0"></div>
+        <div class="portrait" data-slot="1"></div>
+        <div class="portrait" data-slot="2"></div>
+      </div>
+      <div class="shards">
+        ${Array.from({length:6}).map((_,i)=>{
+          const pts = randomShardClip();
+          const dx = (Math.random()*2-1)*40, dy=(Math.random()*2-1)*40;
+          return `<div class="shard" style="clip-path:${pts};--dx:${dx}px;--dy:${dy}px"></div>`;
+        }).join("")}
+      </div>`;
   }
 
   function setBackground(color) { stage.style.background = color; }
 
-  /* ---- 剪影清晰度:0 纯模糊虚影 → 1 接近显形 ---- */
-  function setSilhouette(level) {
-    if (level <= 0) { sil.style.opacity = "0"; return; }
-    sil.style.opacity = "1";
-    // 模糊随清晰度下降,内部细节随清晰度浮现
-    const blur = (1 - level) * 26 + 2;         // 28px → 2px
-    sil.style.filter = `blur(${blur}px)`;
-    const detail = sil.querySelector(".detail");
-    if (detail) detail.style.opacity = String(Math.max(0, level - 0.3));
+  /* ---- 剪影三阶段控制 ---- */
+  let rotTimer = null;      // 阶段3 立绘轮播计时器
+  let rotIdx = 0;
+  let curStage = 0;
+
+  function setSilhouetteStage(n, opts = {}) {
+    const blob = sil.querySelector(".blob");
+    const figure = sil.querySelector(".figure");
+    const portraits = sil.querySelector(".portraits");
+    const halo = sil.querySelector(".halo");
+    sil.classList.remove("hidden");
+
+    // 阶段切换时,停掉旧的轮播
+    if (n !== 3 && rotTimer) { clearInterval(rotTimer); rotTimer = null; }
+
+    if (n === 1) {
+      blob.style.opacity = "1";
+      figure.style.opacity = "0";
+      portraits.style.opacity = "0";
+      halo.style.opacity = "1";
+    } else if (n === 2) {
+      blob.style.opacity = "0";
+      figure.style.opacity = "1";
+      portraits.style.opacity = "0";
+      halo.style.opacity = "1";
+    } else if (n === 3) {
+      blob.style.opacity = "0";
+      figure.style.opacity = "0";
+      portraits.style.opacity = "1";
+      halo.style.opacity = ".5";
+      startPortraitRotation(opts.candidates || []);
+    }
+    curStage = n;
+  }
+
+  // 阶段3:三立绘水波纹 + 玻璃碎片轮播
+  function startPortraitRotation(cands) {
+    const slots = sil.querySelectorAll(".portrait");
+    // 装载候选立绘到三个 slot
+    const files = cands.filter(c => c && c.file).map(c => c.file);
+    slots.forEach((el, i) => {
+      if (files[i]) {
+        el.style.backgroundImage = `url("assets/portraits/${files[i]}")`;
+        el.dataset.has = "1";
+      } else {
+        el.style.backgroundImage = "";
+        el.dataset.has = "";
+      }
+    });
+    rotIdx = 0;
+    showPortrait(0);
+    if (rotTimer) clearInterval(rotTimer);
+    // 只有多于一个候选才轮播
+    const active = [...slots].filter(s => s.dataset.has === "1");
+    if (active.length > 1) {
+      rotTimer = setInterval(() => {
+        rotIdx = (rotIdx + 1) % active.length;
+        fireShards();
+        showPortrait(rotIdx);
+      }, 2600);
+    }
+  }
+
+  function showPortrait(idx) {
+    const slots = [...sil.querySelectorAll(".portrait")].filter(s => s.dataset.has === "1");
+    slots.forEach((el, i) => el.classList.toggle("active", i === idx));
+  }
+
+  // 玻璃碎片闪光
+  function fireShards() {
+    const shards = sil.querySelector(".shards");
+    shards.classList.remove("fire");
+    void shards.offsetWidth;     // reflow 重置动画
+    shards.classList.add("fire");
+    setTimeout(() => shards.classList.remove("fire"), 950);
   }
 
   /* ---- 渲染一个节点 ---- */
@@ -89,6 +172,8 @@ const UI = (() => {
       } else {
         dialogueEl.innerHTML = str;
         typing = false;
+        justCompleted = true;        // 打完了,吞掉紧接着的这次点击
+        hintEl.classList.add("show"); // 提示"可以继续了"
         const d = curDone; curDone = null;
         d && d();
       }
@@ -97,15 +182,24 @@ const UI = (() => {
 
   /* 点击/空格:打字中则快进,否则推进 */
   function advance() {
+    // 1. 打字进行中:立即补全整句。补全本身是一次有效交互,
+    //    补全后再点一下即推进(不额外吞点击)。
     if (typing) {
-      // 打字中:立即补全当前行,触发其 done
       clearTimeout(typeTimer);
       typing = false;
       dialogueEl.innerHTML = curFull;
+      justCompleted = false;        // 手动补全:不吞下一次点击
+      hintEl.classList.add("show");
       const d = curDone; curDone = null;
       d && d();
-      return;               // 这次只补全,不推进
+      return;
     }
+    // 2. 文字自然打完的那一下:吞掉一次,避免"刚打完就被切走"
+    if (justCompleted) {
+      justCompleted = false;
+      return;
+    }
+    // 3. 正常推进
     if (onAdvance) onAdvance();
   }
 
@@ -185,11 +279,21 @@ const UI = (() => {
     if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); advance(); }
   });
 
-  return { initScene, setBackground, setSilhouette, renderNode,
+  return { initScene, setBackground, setSilhouetteStage, renderNode,
            showEnding, showPrologueMeta };
 })();
 
-/* ---- 剪影 SVG:一个抽象人形,detail 层随清晰度浮现 ---- */
+/* ---- 随机玻璃碎片多边形 clip-path ---- */
+function randomShardClip() {
+  const p = [];
+  const n = 3 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < n; i++) {
+    p.push(`${Math.round(Math.random()*100)}% ${Math.round(Math.random()*100)}%`);
+  }
+  return `polygon(${p.join(",")})`;
+}
+
+/* ---- 剪影 SVG:抽象人形(阶段2) ---- */
 const SIL_SVG = `
 <svg viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg">
   <!-- 基础人形轮廓(始终存在,模糊) -->

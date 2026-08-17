@@ -199,7 +199,7 @@ const STORY = {
  * ---------------------------------------------------------- */
 const OPERATORS = [
   {
-    name: "阿米娅", tier: "core",
+    name: "阿米娅", tier: "core", file: "char_002_amiya_1b.png",
     pools: ["rhodes"], relations: ["mentor", "comrade"],
     coord: { ideal: -0.8, order: -0.2, sacrifice: -0.6, mercy: -0.5, guard: -0.7, reason: 0.2, belong: -0.6 },
     ending: [
@@ -209,7 +209,7 @@ const OPERATORS = [
     ],
   },
   {
-    name: "陈", tier: "core",
+    name: "陈", tier: "core", file: "char_010_chen_1b.png",
     pools: ["rhodes", "victoria"], relations: ["comrade", "debt"],
     coord: { ideal: 0.6, order: -0.7, sacrifice: 0.2, mercy: 0.3, guard: 0.4, reason: -0.6, belong: 0.5 },
     ending: [
@@ -219,7 +219,7 @@ const OPERATORS = [
     ],
   },
   {
-    name: "能天使", tier: "core",
+    name: "能天使", tier: "core", file: "char_1016_agoat2_1b.png",
     pools: ["rhodes", "lateran"], relations: ["comrade", "protect"],
     coord: { ideal: -0.5, order: 0.3, sacrifice: -0.8, mercy: 0.1, guard: -0.6, reason: 0.7, belong: -0.2 },
     ending: [
@@ -229,7 +229,7 @@ const OPERATORS = [
     ],
   },
   {
-    name: "陀螺", tier: "daily",
+    name: "陀螺", tier: "daily", file: "char_1013_chen2_1b.png",
     pools: ["rhodes"], relations: ["comrade"],
     coord: { ideal: -0.2, order: 0.1, sacrifice: 0.3, mercy: -0.2, guard: 0.1, reason: 0.5, belong: 0.3 },
     ending: [
@@ -237,7 +237,7 @@ const OPERATORS = [
     ],
   },
   {
-    name: "乌尔比安", tier: "core",
+    name: "乌尔比安", tier: "core", file: "char_1014_nearl2_1b.png",
     pools: ["lateran"], relations: ["mentor", "debt"],
     coord: { ideal: 0.7, order: -0.9, sacrifice: 0.1, mercy: 0.5, guard: 0.6, reason: -0.4, belong: 0.6 },
     ending: [
@@ -247,7 +247,7 @@ const OPERATORS = [
     ],
   },
   {
-    name: "娜塔莉娅", tier: "daily",
+    name: "娜塔莉娅", tier: "daily", file: "char_1012_skadi2_1b.png",
     pools: ["ursus"], relations: ["protect", "debt"],
     coord: { ideal: 0.3, order: 0.5, sacrifice: 0.4, mercy: 0.6, guard: 0.2, reason: -0.5, belong: 0.7 },
     ending: [

@@ -67,6 +67,22 @@ function weightedDistance(a, b) {
   return Math.sqrt(sum);
 }
 
+// 实时计算当前候选池(按已选 pool/relation 过滤),返回按距离排序的 top-N
+function liveCandidates(n = 3) {
+  let pool = E_OPERATORS.filter(op =>
+    op.pools && op.pools.some(p => state.poolTags.includes(p))
+  );
+  if (pool.length === 0) pool = E_OPERATORS.slice();
+  const relMatched = pool.filter(op =>
+    op.relations && op.relations.some(r => state.relationTags.includes(r))
+  );
+  if (relMatched.length > 0) pool = relMatched;
+  const ranked = pool
+    .map(op => ({ op, d: weightedDistance(state.coord, op.coord) }))
+    .sort((a, b) => a.d - b.d);
+  return { size: pool.length, top: ranked.slice(0, n).map(x => x.op) };
+}
+
 /* ---- 推进到某节点并渲染 ---- */
 function goTo(nodeKey) {
   state.node = nodeKey;
@@ -75,7 +91,21 @@ function goTo(nodeKey) {
   if (!node) { console.error("未知节点:", nodeKey); return; }
 
   UI.setBackground(node.bg || "#0a1420");
-  UI.setSilhouette(node.silhouette ?? 0);
+
+  // 决定剪影阶段:
+  //   阶段1 光团   —— 还没圈定池子(未选阵营)
+  //   阶段2 人影   —— 已选阵营,池子仍大
+  //   阶段3 立绘轮播 —— 候选池收敛到很少(<=4)
+  const s = node.silhouette ?? 0;
+  const cand = liveCandidates(3);
+  let stage;
+  if (state.poolTags.length === 0 || s < 0.15) stage = 1;
+  else if (cand.size > 4 || s < 0.55) stage = 2;
+  else stage = 3;
+  UI.setSilhouetteStage(stage, {
+    clarity: s,
+    candidates: cand.top,   // 阶段3 用的 top-3 立绘
+  });
 
   if (node.type === "ending") {
     resolveEnding(node);
