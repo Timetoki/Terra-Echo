@@ -227,12 +227,13 @@ const UI = (() => {
   function showEnding(op) {
     curOp = op;
     const box = $("#ending");
-    const slices = box.querySelectorAll(".slice");
+    const frames = box.querySelectorAll(".frame");
 
-    // 三条切片的内层装载同一张彩色立绘(contain 保持比例)
+    // 三个窗口 + 合并后的完整立绘,装载同一张图
     if (op && op.file) {
-      const url = `url("assets/portraits/${op.file}")`;
-      box.querySelectorAll(".slice-img").forEach(el => el.style.backgroundImage = url);
+      const src = `assets/portraits/${op.file}`;
+      box.querySelectorAll(".fimg").forEach(el => el.src = src);
+      box.querySelector(".full-portrait").src = src;
     }
 
     // 文字
@@ -243,25 +244,23 @@ const UI = (() => {
     lines.forEach((t, i) => {
       const p = document.createElement("p");
       p.textContent = t;
-      p.style.animationDelay = (0.4 + i * 0.9) + "s";   // 信息侧滑入后再逐行
+      p.style.animationDelay = (0.4 + i * 0.9) + "s";
       endWrap.appendChild(p);
     });
     const reBtn = $("#reunion");
     reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
 
-    // 序列:显示 → 切片清晰归位(居中) → 停顿 → 移左 + 信息滑入
-    box.classList.remove("revealed", "shifted");
+    // 序列:三窗口错落入场(上中下) → 合并成完整立绘 → 整体移左 + 信息滑入
+    box.classList.remove("revealed", "merged", "shifted");
     box.classList.add("show");
-    // 切片错开时间进入并清晰
-    slices.forEach((s, i) => {
-      s.style.transitionDelay = (i * 0.22) + "s";
-    });
+    frames.forEach((f, i) => { f.style.transitionDelay = (i * 0.2) + "s"; });
     requestAnimationFrame(() => {
-      setTimeout(() => box.classList.add("revealed"), 60);   // 切片进入+清晰
-      setTimeout(() => {                                      // 清晰后移左出信息
-        slices.forEach(s => s.style.transitionDelay = "0s");
-        box.classList.add("shifted");
-      }, 1900);
+      setTimeout(() => box.classList.add("revealed"), 60);    // 三窗口入场清晰
+      setTimeout(() => {
+        frames.forEach(f => f.style.transitionDelay = "0s");
+        box.classList.add("merged");                          // 合并成完整立绘
+      }, 1700);
+      setTimeout(() => box.classList.add("shifted"), 2500);   // 移左 + 出信息
     });
   }
 
