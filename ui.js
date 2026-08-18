@@ -252,13 +252,11 @@ const UI = (() => {
     box.classList.remove("blink", "bloomed", "shifted");
     box.classList.add("show");
     const bokeh = box.querySelector(".fx-bokeh");
-    const codebg = box.querySelector(".fx-codebg");
     requestAnimationFrame(() => {
       setTimeout(() => box.classList.add("blink"), 80);       // 眨眼 2s
       setTimeout(() => {
         box.classList.add("bloomed");                          // 睁眼白光绽开
         bokeh && bokeh.play().catch(()=>{});                   // bokeh 出现
-        codebg && codebg.play().catch(()=>{});                 // code 背景循环
       }, 2000);
       setTimeout(() => box.classList.add("shifted"), 3500);    // 移左+信息
     });
