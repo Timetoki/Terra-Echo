@@ -253,14 +253,14 @@ const UI = (() => {
     // 序列:三窗口错落入场(上中下) → 合并成完整立绘 → 整体移左 + 信息滑入
     box.classList.remove("revealed", "merged", "shifted");
     box.classList.add("show");
-    frames.forEach((f, i) => { f.style.transitionDelay = (i * 0.2) + "s"; });
+    frames.forEach((f, i) => { f.style.transitionDelay = (i * 0.3) + "s"; });
     requestAnimationFrame(() => {
-      setTimeout(() => box.classList.add("revealed"), 60);    // 三窗口入场清晰
+      setTimeout(() => box.classList.add("revealed"), 60);    // 三窗口入场清晰(1.5s)
       setTimeout(() => {
         frames.forEach(f => f.style.transitionDelay = "0s");
         box.classList.add("merged");                          // 合并成完整立绘
-      }, 1700);
-      setTimeout(() => box.classList.add("shifted"), 2500);   // 移左 + 出信息
+      }, 2400);
+      setTimeout(() => box.classList.add("shifted"), 3700);   // 移左 + 出信息
     });
   }
 
