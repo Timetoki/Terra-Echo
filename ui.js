@@ -227,14 +227,14 @@ const UI = (() => {
   function showEnding(op) {
     curOp = op;
     const box = $("#ending");
-    const frames = box.querySelectorAll(".frame");
 
-    // 三个窗口 + 合并后的完整立绘,装载同一张图
+    // 装载白剪影 + 彩色立绘
     if (op && op.file) {
-      const src = `assets/portraits/${op.file}`;
-      box.querySelectorAll(".fimg").forEach(el => el.src = src);
-      box.querySelector(".full-portrait").src = src;
+      box.querySelector(".rv-sil").src = `assets/silhouettes/${op.file}`;
+      box.querySelector(".rv-real").src = `assets/portraits/${op.file}`;
     }
+    // 生成玻璃碎片
+    buildGlassShards(box.querySelector(".rv-shards"));
 
     // 文字
     box.querySelector(".op-name").textContent = op ? op.name : "???";
@@ -250,18 +250,37 @@ const UI = (() => {
     const reBtn = $("#reunion");
     reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
 
-    // 序列:三窗口错落入场(上中下) → 合并成完整立绘 → 整体移左 + 信息滑入
-    box.classList.remove("revealed", "merged", "shifted");
+    // 序列:白剪影眨眼(1.8s) → 白光绽开+棱镜+玻璃碎+彩色立绘 → 移左+信息
+    box.classList.remove("blink", "bloomed", "shifted");
     box.classList.add("show");
-    frames.forEach((f, i) => { f.style.transitionDelay = (i * 0.3) + "s"; });
     requestAnimationFrame(() => {
-      setTimeout(() => box.classList.add("revealed"), 60);    // 三窗口入场清晰(1.5s)
-      setTimeout(() => {
-        frames.forEach(f => f.style.transitionDelay = "0s");
-        box.classList.add("merged");                          // 合并成完整立绘
-      }, 2400);
-      setTimeout(() => box.classList.add("shifted"), 3700);   // 移左 + 出信息
+      setTimeout(() => box.classList.add("blink"), 80);      // 剪影眨眼
+      setTimeout(() => box.classList.add("bloomed"), 1900);  // 绽开→立绘
+      setTimeout(() => box.classList.add("shifted"), 3300);  // 移左+信息
     });
+  }
+
+  // 生成玻璃碎片(从中心向四周飞散)
+  function buildGlassShards(layer) {
+    layer.innerHTML = "";
+    const N = 14;
+    for (let i = 0; i < N; i++) {
+      const s = document.createElement("div");
+      s.className = "gshard";
+      const ang = (i / N) * Math.PI * 2 + Math.random() * 0.5;
+      const dist = 180 + Math.random() * 260;
+      const size = 18 + Math.random() * 46;
+      s.style.setProperty("--gs", size + "px");
+      s.style.setProperty("--gx", Math.cos(ang) * dist + "px");
+      s.style.setProperty("--gy", Math.sin(ang) * dist + "px");
+      s.style.setProperty("--gr", (Math.random() * 2 - 1) * 180 + "deg");
+      const pts = [];
+      const n = 3 + (Math.random() * 2 | 0);
+      for (let k = 0; k < n; k++) pts.push(`${(Math.random()*100)|0}% ${(Math.random()*100)|0}%`);
+      s.style.clipPath = `polygon(${pts.join(",")})`;
+      s.style.animationDelay = (Math.random() * 0.15).toFixed(2) + "s";
+      layer.appendChild(s);
+    }
   }
 
   /* ---- 重逢剧情:点"走近那个人"后拉起 ---- */
