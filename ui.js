@@ -254,9 +254,9 @@ const UI = (() => {
     box.classList.remove("blink", "bloomed", "shifted");
     box.classList.add("show");
     requestAnimationFrame(() => {
-      setTimeout(() => box.classList.add("blink"), 80);      // 剪影眨眼
-      setTimeout(() => box.classList.add("bloomed"), 1900);  // 绽开→立绘
-      setTimeout(() => box.classList.add("shifted"), 3300);  // 移左+信息
+      setTimeout(() => box.classList.add("blink"), 80);      // 眼睑开合(2.2s)
+      setTimeout(() => box.classList.add("bloomed"), 2000);  // 睁眼→白光绽开→立绘
+      setTimeout(() => box.classList.add("shifted"), 3500);  // 移左+信息
     });
   }
 
