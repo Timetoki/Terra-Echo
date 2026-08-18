@@ -104,9 +104,9 @@ body{
 
 /* 阶段3:放大的白色立绘剪影(用 mask 从透明底立绘取形,填白) */
 #silhouette .portraits{
-  position:fixed;left:50%;bottom:14vh;top:auto;
+  position:fixed;left:50%;bottom:6vh;top:auto;
   transform:translateX(-50%);
-  width:min(78vh,600px);height:88vh;
+  width:min(95vh,720px);height:100vh;
   opacity:0;transition:opacity 1.2s;
   z-index:5;
 }
@@ -184,11 +184,11 @@ body{
 #ending.show{display:block;opacity:1}
 
 /* 分镜层:容器,初始居中,shifted 后整体移左 */
-.end-frames{position:absolute;top:50%;left:50%;
-  width:min(96vh,760px);height:min(150vh,1180px);
+.end-frames{position:absolute;top:54%;left:50%;
+  width:min(80vh,620px);height:min(130vh,1000px);
   transform:translate(-50%,-50%);
   transition:left 1.5s cubic-bezier(.5,0,.2,1),transform 1.5s cubic-bezier(.5,0,.2,1);}
-#ending.shifted .end-frames{left:26%;}
+#ending.shifted .end-frames{left:32%;}
 @media(max-width:760px){#ending.shifted .end-frames{left:50%;top:30%}}
 
 /* 入场三窗口:各占约 1/3 高,内部 img 用 object-fit 保持比例 + object-position 取顶/中/底 */
@@ -218,16 +218,16 @@ body{
 #ending.merged .full-portrait{opacity:1;}
 
 /* 信息侧:半透明浮层,shifted 后滑入右侧,永远在图上方 */
-.end-info{position:absolute;top:50%;right:7%;left:auto;z-index:3;
+.end-info{position:absolute;top:52%;right:9%;left:auto;z-index:3;
   transform:translateY(-50%) translateX(24px);
-  max-width:min(44vw,480px);
-  padding:clamp(20px,3vw,40px);
+  width:min(42vw,440px);max-height:92vh;overflow-y:auto;
+  padding:clamp(18px,2.4vw,34px);
   background:linear-gradient(120deg,rgba(7,15,24,.66),rgba(7,15,24,.34));
   backdrop-filter:blur(3px);border-radius:3px;
   opacity:0;transition:opacity 1s ease,transform 1s ease;}
 #ending.shifted .end-info{opacity:1;transform:translateY(-50%) translateX(0);}
 @media(max-width:760px){
-  .end-info{top:auto;bottom:4vh;right:5%;left:5%;max-width:none;
+  .end-info{top:auto;bottom:4vh;right:5%;left:5%;width:auto;max-height:none;
     transform:translateX(0);text-align:center;}
   #ending.shifted .end-info{transform:translateX(0)}
 }
