@@ -194,36 +194,35 @@ body{
   width:min(88vh,680px);height:min(120vh,920px);}
 @media(max-width:760px){#ending.shifted .reveal-stage{left:50%;top:34%}}
 
-/* 朦胧发光白剪影:眨眼阶段放很大、下移到只见头 */
+/* 朦胧发光白剪影:眨眼时露头,缩小(不要太大) */
 .rv-sil{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:contain;object-position:center 78%;   /* 焦点下移→画面只余头 */
-  opacity:0;transform:scale(2.4);
-  filter:blur(13px) brightness(1.6) drop-shadow(0 0 50px rgba(234,244,255,.7));}
+  object-fit:contain;object-position:center 40%;
+  opacity:0;transform:scale(1.15);
+  filter:blur(9px) brightness(1.5) drop-shadow(0 0 40px rgba(234,244,255,.65));}
 #ending.blink .rv-sil{opacity:.9;}
-/* 睁眼绽开后:剪影彻底消失(解除任何锁定) */
 #ending.bloomed .rv-sil{opacity:0 !important;animation:none !important;
   transition:opacity .5s ease;}
 
-/* 黑色眼睑蒙版:上下两片,初始闭合,开合两次后完全睁开 */
-.eyelids{position:absolute;inset:0;z-index:6;pointer-events:none;}
-.lid{position:absolute;left:0;width:100%;height:52%;background:#000;}
-.lid-top{top:0;transform-origin:top;}
-.lid-bottom{bottom:0;transform-origin:bottom;}
-/* 睁眼曲线:上下眼睑用 scaleY 开合。闭=1,开=0 */
-#ending.blink .lid{animation:lidBlink 2.2s ease forwards;}
-@keyframes lidBlink{
-  0%{transform:scaleY(1);}      /* 全闭 */
-  20%{transform:scaleY(.35);}   /* 睁开一点 */
-  34%{transform:scaleY(.85);}   /* 眨1:又合上大半 */
-  50%{transform:scaleY(.3);}    /* 睁开 */
-  64%{transform:scaleY(.8);}    /* 眨2:又合 */
-  100%{transform:scaleY(0);}    /* 完全睁开 */
+/* 眼睛形状蒙版(SVG):杏仁眼孔开合 */
+.eye-mask{position:absolute;inset:0;width:100%;height:100%;z-index:6;
+  pointer-events:none;}
+.eye-shape{transform-box:fill-box;transform-origin:center;transform:scaleY(1);}
+#ending.blink .eye-shape{animation:eyeBlink 2.2s ease forwards;}
+@keyframes eyeBlink{
+  0%{transform:scaleY(.04);}    /* 几乎闭合(细缝) */
+  16%{transform:scaleY(.72);}   /* 睁开 */
+  30%{transform:scaleY(.2);}    /* 眨1 */
+  46%{transform:scaleY(.8);}    /* 睁开 */
+  60%{transform:scaleY(.16);}   /* 眨2 */
+  100%{transform:scaleY(1);}    /* 完全睁大 */
 }
-/* 睁眼后眼睑保持全开 */
-#ending.bloomed .lid{transform:scaleY(0);}
+#ending.bloomed .eye-shape{transform:scaleY(3.5) !important;animation:none !important;
+  transition:transform .6s ease;}
+/* 睁大后整个眼罩淡出,露出全画面 */
+#ending.bloomed .eye-mask{opacity:0;transition:opacity .8s ease .2s;}
 
-/* 白光绽开(睁眼那一刻) */
-.rv-bloom{position:absolute;left:50%;top:44%;width:10%;height:10%;
+/* 白光绽开 */
+.rv-bloom{position:absolute;left:50%;top:42%;width:10%;height:10%;
   transform:translate(-50%,-50%);border-radius:50%;
   background:radial-gradient(circle,#fff,rgba(234,244,255,.85) 30%,transparent 70%);
   opacity:0;pointer-events:none;z-index:5;}
@@ -241,31 +240,45 @@ body{
 #ending.bloomed .rv-real{opacity:1;transform:scale(1);
   transition:opacity 1.2s ease .35s,transform 1.4s cubic-bezier(.3,.7,.3,1) .35s;}
 
-/* 棱镜光影层:绽开时彩色折射光扫过 */
-.rv-prism{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:5;
-  background:linear-gradient(115deg,transparent 28%,
-    rgba(150,210,255,.35) 42%,rgba(255,200,235,.3) 50%,
-    rgba(190,255,230,.35) 58%,transparent 72%);
-  mix-blend-mode:screen;}
-#ending.bloomed .rv-prism{animation:prismSweep 1.7s ease .1s forwards;}
-@keyframes prismSweep{
-  0%{opacity:0;transform:translateX(-40%) skewX(-8deg);}
-  35%{opacity:1;}
-  100%{opacity:0;transform:translateX(40%) skewX(-8deg);}
+/* ===== 持续光效层:从眨眼叠到结算,循环播放 ===== */
+.fx-layer{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden;
+  opacity:0;transition:opacity .8s ease;}
+#ending.show .fx-layer{opacity:1;}
+/* 棱镜:一道彩色折射光缓慢循环扫过 */
+.fx-prism{position:absolute;inset:-20%;
+  background:linear-gradient(115deg,transparent 40%,
+    rgba(150,210,255,.16) 47%,rgba(255,200,235,.14) 50%,
+    rgba(190,255,230,.16) 53%,transparent 60%);
+  mix-blend-mode:screen;
+  animation:prismLoop 7s linear infinite;}
+@keyframes prismLoop{
+  0%{transform:translateX(-40%) skewX(-10deg);}
+  100%{transform:translateX(40%) skewX(-10deg);}
 }
-
-/* 玻璃碎特效层 */
-.rv-shards{position:absolute;inset:0;pointer-events:none;z-index:5;}
-.rv-shards .gshard{position:absolute;left:50%;top:44%;
-  width:var(--gs);height:var(--gs);
+/* 玻璃碎:漂浮的碎光,持续缓慢闪烁旋转 */
+.fx-shards .fshard{position:absolute;
+  background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(200,230,255,.15) 60%,transparent);
+  box-shadow:0 0 8px rgba(234,244,255,.4);
+  animation:fshardFloat linear infinite;}
+@keyframes fshardFloat{
+  0%{opacity:0;transform:translateY(10px) rotate(0deg) scale(.8);}
+  20%{opacity:.7;}
+  80%{opacity:.5;}
+  100%{opacity:0;transform:translateY(-30px) rotate(var(--fr)) scale(1.1);}
+}
+/* 睁眼那刻的爆发碎片(一次性,叠在持续层上) */
+.fx-burst{position:absolute;left:50%;top:42%;pointer-events:none;}
+.fx-burst .bshard{position:absolute;left:0;top:0;width:var(--gs);height:var(--gs);
   background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(200,230,255,.3) 55%,transparent);
-  box-shadow:0 0 10px rgba(234,244,255,.6);opacity:0;}
-#ending.bloomed .rv-shards .gshard{animation:gshardFly 1.3s ease forwards;}
-@keyframes gshardFly{
+  box-shadow:0 0 12px rgba(234,244,255,.7);opacity:0;}
+#ending.bloomed .fx-burst .bshard{animation:burstFly 1.3s ease forwards;}
+@keyframes burstFly{
   0%{opacity:0;transform:translate(-50%,-50%) rotate(0deg) scale(.3);}
   18%{opacity:1;}
   100%{opacity:0;transform:translate(calc(-50% + var(--gx)),calc(-50% + var(--gy))) rotate(var(--gr)) scale(1.1);}
 }
+
+
 
 
 /* 半透明信息浮层:拉宽 */
@@ -309,11 +322,13 @@ body{
 #reunion-scene{position:fixed;inset:0;z-index:50;display:none;
   background:var(--bg-0);}
 #reunion-scene.show{display:block}
-#reunion-scene .rs-bg{position:absolute;inset:0;
-  background-repeat:no-repeat;background-size:cover;background-position:center 12%;
-  opacity:.28;filter:blur(2px);}
+#reunion-scene .rs-bg{position:absolute;left:50%;top:0;
+  transform:translateX(-50%);
+  width:min(70vh,540px);height:82vh;
+  background-repeat:no-repeat;background-size:contain;background-position:center top;
+  opacity:1;filter:none;}
 #reunion-scene .rs-bg::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(7,15,24,.4),var(--bg-0) 72%);}
+  background:linear-gradient(180deg,transparent 55%,var(--bg-0));}
 .rs-textbox{position:absolute;left:0;right:0;bottom:0;
   background:linear-gradient(180deg,transparent,var(--panel) 24%);
   padding:clamp(28px,6vh,68px) clamp(20px,7vw,120px) clamp(30px,5vh,54px);
@@ -435,13 +450,23 @@ body{
     <img class="rv-sil" alt="">        <!-- 朦胧发光白剪影(只见头) -->
     <img class="rv-real" alt="">       <!-- 彩色立绘 -->
     <div class="rv-bloom"></div>       <!-- 白光绽开 -->
-    <div class="rv-prism"></div>       <!-- 棱镜光影层 -->
-    <div class="rv-shards"></div>      <!-- 玻璃碎特效层 -->
   </div>
-  <!-- 黑色眼睑蒙版(最前层):上下眼睑开合,睁开露出白光 -->
-  <div class="eyelids">
-    <div class="lid lid-top"></div>
-    <div class="lid lid-bottom"></div>
+  <!-- 眼睛形状蒙版(SVG):黑色遮罩挖出杏仁形眼孔,开合眨眼 -->
+  <svg class="eye-mask" viewBox="0 0 1440 860" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <mask id="eyeHole">
+        <rect width="1440" height="860" fill="white"/>
+        <!-- 杏仁形眼孔:两条二次贝塞尔弧对合。用 scaleY 控制开合 -->
+        <path class="eye-shape" d="M 320 430 Q 720 200 1120 430 Q 720 660 320 430 Z" fill="black"/>
+      </mask>
+    </defs>
+    <rect width="1440" height="860" fill="#000" mask="url(#eyeHole)"/>
+  </svg>
+  <!-- 持续光效层(棱镜+玻璃碎):从眨眼叠到结算,循环 -->
+  <div class="fx-layer">
+    <div class="fx-prism"></div>
+    <div class="fx-shards"></div>
+    <div class="fx-burst"></div>
   </div>
   <!-- 半透明信息浮层 -->
   <div class="end-info">
