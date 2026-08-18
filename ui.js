@@ -36,13 +36,6 @@ const UI = (() => {
         <div class="portrait" data-slot="0"></div>
         <div class="portrait" data-slot="1"></div>
         <div class="portrait" data-slot="2"></div>
-        <div class="shards">
-          ${Array.from({length:6}).map((_,i)=>{
-            const pts = randomShardClip();
-            const dx = (Math.random()*2-1)*40, dy=(Math.random()*2-1)*40;
-            return `<div class="shard" style="clip-path:${pts};--dx:${dx}px;--dy:${dy}px"></div>`;
-          }).join("")}
-        </div>
       </div>`;
   }
 
@@ -117,24 +110,14 @@ const UI = (() => {
     if (active.length > 1) {
       rotTimer = setInterval(() => {
         rotIdx = (rotIdx + 1) % active.length;
-        fireShards();
         showPortrait(rotIdx);
-      }, 2600);
+      }, 3000);
     }
   }
 
   function showPortrait(idx) {
     const slots = [...sil.querySelectorAll(".portrait")].filter(s => s.dataset.has === "1");
     slots.forEach((el, i) => el.classList.toggle("active", i === idx));
-  }
-
-  // 玻璃碎片闪光
-  function fireShards() {
-    const shards = sil.querySelector(".shards");
-    shards.classList.remove("fire");
-    void shards.offsetWidth;     // reflow 重置动画
-    shards.classList.add("fire");
-    setTimeout(() => shards.classList.remove("fire"), 950);
   }
 
   /* ---- 渲染一个节点 ---- */
@@ -350,16 +333,6 @@ const UI = (() => {
   return { initScene, setBackground, setSilhouetteStage, renderNode,
            showEnding, showPrologueMeta, startReunion };
 })();
-
-/* ---- 随机玻璃碎片多边形 clip-path ---- */
-function randomShardClip() {
-  const p = [];
-  const n = 3 + Math.floor(Math.random() * 2);
-  for (let i = 0; i < n; i++) {
-    p.push(`${Math.round(Math.random()*100)}% ${Math.round(Math.random()*100)}%`);
-  }
-  return `polygon(${p.join(",")})`;
-}
 
 /* ---- 剪影 SVG:抽象人形(阶段2) ---- */
 const SIL_SVG = `

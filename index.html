@@ -120,22 +120,6 @@ body{
 }
 #silhouette .portrait.active{opacity:.88}
 
-/* 玻璃碎片层:切换瞬间几块不规则多边形错位闪光 */
-#silhouette .shards{position:absolute;inset:0;pointer-events:none;opacity:0}
-#silhouette .shards.fire{opacity:1}
-#silhouette .shard{
-  position:absolute;inset:0;
-  background:linear-gradient(135deg,
-    rgba(255,255,255,.9),rgba(200,230,255,.2) 50%,transparent);
-  opacity:0;
-}
-#silhouette .shards.fire .shard{animation:shardFlash .9s ease forwards}
-@keyframes shardFlash{
-  0%{opacity:0;transform:translate(0,0) scale(1)}
-  25%{opacity:.85}
-  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.04)}
-}
-
 /* ---- 剧情框 ---- */
 #textbox{
   position:relative;margin-top:auto;
