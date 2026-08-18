@@ -46,7 +46,19 @@ const UI = (() => {
       </div>`;
   }
 
-  function setBackground(color) { stage.style.background = color; }
+  function setBackground(color) {
+    // 把节点背景色转成半透明,让底层 Blue 视频透出来一部分
+    stage.style.background = hexToRgba(color, 0.8);
+  }
+  function hexToRgba(hex, a) {
+    if (!hex || hex[0] !== "#") return hex;
+    const h = hex.slice(1);
+    const n = h.length === 3
+      ? h.split("").map(c => c + c).join("")
+      : h;
+    const r = parseInt(n.slice(0,2),16), g = parseInt(n.slice(2,4),16), b = parseInt(n.slice(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
 
   /* ---- 剪影三阶段控制 ---- */
   let rotTimer = null;      // 阶段3 立绘轮播计时器

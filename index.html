@@ -31,7 +31,7 @@ body{
 }
 
 /* ---- 舞台 ---- */
-#stage{position:fixed;inset:0;display:flex;flex-direction:column;
+#stage{position:fixed;inset:0;display:flex;flex-direction:column;z-index:1;
   transition:background 1.2s ease;}
 #scene{position:absolute;inset:0;overflow:hidden}
 
@@ -179,7 +179,7 @@ body{
 .choice.in{transform:translateY(0);opacity:1}
 
 /* ---- 结局显影(眼睑开合→睁眼白光绽开→彩色立绘→移左) ---- */
-#ending{position:fixed;inset:0;background:#000;
+#ending{position:fixed;inset:0;background:rgba(0,0,0,.8);
   display:none;z-index:40;opacity:0;transition:opacity .8s ease;}
 #ending.show{display:block;opacity:1}
 
@@ -205,8 +205,8 @@ body{
 
 /* 眼睛形状蒙版(SVG):杏仁眼孔开合 */
 .eye-mask{position:absolute;inset:0;width:100%;height:100%;z-index:6;
-  pointer-events:none;}
-.eye-shape{transform-box:fill-box;transform-origin:center;transform:scaleY(1);}
+  pointer-events:none;opacity:1;transition:opacity .7s ease;}
+.eye-shape{transform-box:fill-box;transform-origin:center;transform:scaleY(.04);}
 #ending.blink .eye-shape{animation:eyeBlink 2s ease forwards;}
 @keyframes eyeBlink{
   0%{transform:scaleY(.04);}    /* 几乎闭合(细缝) */
@@ -214,12 +214,10 @@ body{
   30%{transform:scaleY(.2);}    /* 眨1 */
   46%{transform:scaleY(.8);}    /* 睁开 */
   60%{transform:scaleY(.16);}   /* 眨2 */
-  100%{transform:scaleY(1);}    /* 完全睁大 */
+  100%{transform:scaleY(2.6);}  /* 最终睁得很大(露出大部分画面) */
 }
-#ending.bloomed .eye-shape{transform:scaleY(3.5) !important;animation:none !important;
-  transition:transform .6s ease;}
-/* 睁大后整个眼罩彻底移除 */
-#ending.bloomed .eye-mask{display:none !important;}
+/* 睁大后眼罩平滑淡出(不硬切、不跳变) */
+#ending.bloomed .eye-mask{opacity:0;}
 
 /* 白光绽开 */
 .rv-bloom{position:absolute;left:50%;top:42%;width:10%;height:10%;
@@ -241,13 +239,12 @@ body{
   transition:opacity 1.2s ease .35s,transform 1.4s cubic-bezier(.3,.7,.3,1) .35s;}
 
 /* ===== 视频特效层 ===== */
-/* Blue_Gleam:全局最上层,全程 screen 叠加,1-4 顺序循环,透明度 50% */
+/* Blue_Gleam:垫在背景层(内容之下),1-4 顺序循环,透明度 50% */
 #global-gleam{position:fixed;inset:0;width:100%;height:100%;
+  object-fit:cover;z-index:0;pointer-events:none;opacity:.5;}
+/* 辉光 Bokeh:最上层 screen 叠加 */
+.fx-bokeh{position:fixed;inset:0;width:100%;height:100%;
   object-fit:cover;z-index:9999;pointer-events:none;
-  mix-blend-mode:screen;opacity:.5;}
-/* Bokeh:结算眨眼白光后出现,screen 最上层 */
-.fx-bokeh{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;z-index:8;pointer-events:none;
   mix-blend-mode:screen;opacity:0;transition:opacity 1.2s ease;}
 #ending.bloomed .fx-bokeh{opacity:.85;}
 
@@ -342,7 +339,7 @@ body{
   margin:1.4em 0;text-shadow:0 0 30px rgba(120,220,255,.5);}
 
 /* ---- 开场标题 ---- */
-#title-screen{position:fixed;inset:0;z-index:60;background:var(--bg-0);
+#title-screen{position:fixed;inset:0;z-index:60;background:rgba(7,15,24,.78);
   display:flex;align-items:center;justify-content:center;flex-direction:column;
   transition:opacity 1s;}
 #title-screen.hide{opacity:0;pointer-events:none}
@@ -428,7 +425,7 @@ body{
     <defs>
       <mask id="eyeHole">
         <rect width="1440" height="860" fill="white"/>
-        <path class="eye-shape" d="M 320 430 Q 720 200 1120 430 Q 720 660 320 430 Z" fill="black"/>
+        <path class="eye-shape" d="M 0 430 Q 720 120 1440 430 Q 720 740 0 430 Z" fill="black"/>
       </mask>
     </defs>
     <rect width="1440" height="860" fill="#000" mask="url(#eyeHole)"/>
