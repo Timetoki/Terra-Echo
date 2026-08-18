@@ -344,32 +344,14 @@ body{
   display:flex;align-items:center;justify-content:center;flex-direction:column;
   transition:opacity 1s;overflow:hidden;}
 /* 封面背景层 */
-#title-screen .tt-cover{position:absolute;inset:0;
-  background:url("assets/cover/cover.png") center/cover no-repeat;}
+#title-screen .tt-cover{position:absolute;inset:-1.5%;
+  background:url("assets/cover/cover.png") center/cover no-repeat;
+  filter:blur(2px);}
 #title-screen::before{content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55));}
-/* 黑色底布:整体压暗回灰,局部透明度低(挖出忽明忽暗) */
+/* 黑色底布:整体压暗回灰(静态,更暗) */
 .tt-breathe{position:absolute;inset:0;pointer-events:none;
-  background:rgba(0,0,0,.42);}
-.tt-breathe span{position:absolute;border-radius:50%;
-  background:radial-gradient(circle,rgba(0,0,0,.55),transparent 62%);
-  filter:blur(30px);opacity:0;}
-.tt-breathe span:nth-child(1){left:22%;top:24%;width:16vw;height:30vh;
-  animation:breathe 6s ease-in-out infinite;}
-.tt-breathe span:nth-child(2){left:40%;top:14%;width:14vw;height:28vh;
-  animation:breathe 7.5s ease-in-out infinite 1.2s;}
-.tt-breathe span:nth-child(3){left:58%;top:12%;width:15vw;height:30vh;
-  animation:breathe 6.5s ease-in-out infinite 2.6s;}
-.tt-breathe span:nth-child(4){left:74%;top:18%;width:16vw;height:30vh;
-  animation:breathe 8s ease-in-out infinite .6s;}
-.tt-breathe span:nth-child(5){left:30%;top:56%;width:15vw;height:28vh;
-  animation:breathe 7s ease-in-out infinite 3.4s;}
-.tt-breathe span:nth-child(6){left:60%;top:60%;width:14vw;height:26vh;
-  animation:breathe 6.8s ease-in-out infinite 1.8s;}
-.tt-breathe span:nth-child(7){left:78%;top:56%;width:14vw;height:28vh;
-  animation:breathe 7.8s ease-in-out infinite 4s;}
-/* span 从透明到加深:局部黑布变浓,那块更暗 */
-@keyframes breathe{0%,100%{opacity:0;}50%{opacity:.7;}}
+  background:rgba(0,0,0,.56);}
 /* 星尘层:JS 生成的亮点 */
 .tt-stars{position:absolute;inset:0;pointer-events:none;}
 .tt-stars .st{position:absolute;border-radius:50%;background:#fff;
@@ -423,9 +405,9 @@ body{
 /* 偶尔整体扫描线撕裂 */
 .tt-main::selection{background:#3affe0;}
 
-.tt-sub{color:#fff;letter-spacing:.08em;margin-top:.4em;
-  font-family:"Noto Sans SC",sans-serif;font-size:clamp(1.4rem,3vw,2.1rem);
-  font-weight:500;text-shadow:0 0 16px rgba(0,0,0,.9),0 0 30px rgba(234,244,255,.25);
+.tt-sub{color:#fff;letter-spacing:.06em;margin-top:-.6em;
+  font-family:"Noto Sans SC",sans-serif;font-size:clamp(1.7rem,3.6vw,2.6rem);
+  font-weight:600;text-shadow:0 0 16px rgba(0,0,0,.9),0 0 30px rgba(234,244,255,.25);
   animation:subFlicker 5s steps(1) infinite;}
 @keyframes subFlicker{
   0%,97%,100%{opacity:.85;}
