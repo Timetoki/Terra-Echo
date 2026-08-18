@@ -352,6 +352,38 @@ body{
 /* 黑色底布:整体压暗回灰(静态,更暗) */
 .tt-breathe{position:absolute;inset:0;pointer-events:none;
   background:rgba(0,0,0,.56);}
+/* 一圈圈荡开的水波涟漪 */
+.tt-ripples{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.tt-ripples .ripple{position:absolute;border-radius:50%;
+  border:1.5px solid rgba(210,230,255,.5);
+  transform:translate(-50%,-50%) scale(0);opacity:0;
+  animation:rippleOut ease-out forwards;}
+@keyframes rippleOut{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:0;}
+  12%{opacity:.55;}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:0;border-width:.5px;}
+}
+/* 波纹层:缓慢流动的光纹,给背景一点动态感 */
+.tt-ripple{position:absolute;inset:-10%;pointer-events:none;z-index:1;
+  mix-blend-mode:screen;opacity:.5;
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 40%,rgba(150,190,240,.14),transparent 60%),
+    radial-gradient(ellipse 50% 60% at 70% 55%,rgba(120,160,220,.12),transparent 60%),
+    repeating-linear-gradient(115deg,transparent 0 60px,rgba(180,210,255,.05) 60px 120px);
+  animation:rippleFlow 16s ease-in-out infinite alternate;}
+.tt-ripple::after{content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 55% 45% at 55% 35%,rgba(160,200,250,.1),transparent 62%),
+    repeating-linear-gradient(65deg,transparent 0 80px,rgba(200,225,255,.04) 80px 160px);
+  animation:rippleFlow2 22s ease-in-out infinite alternate;}
+@keyframes rippleFlow{
+  0%{transform:translate(0,0) scale(1);}
+  100%{transform:translate(3%,-2%) scale(1.06);}
+}
+@keyframes rippleFlow2{
+  0%{transform:translate(0,0) scale(1.04);}
+  100%{transform:translate(-3%,2%) scale(1);}
+}
 /* 星尘层:JS 生成的亮点 */
 .tt-stars{position:absolute;inset:0;pointer-events:none;}
 .tt-stars .st{position:absolute;border-radius:50%;background:#fff;
@@ -476,6 +508,7 @@ body{
 <div id="title-screen">
   <div class="tt-cover"></div>
   <div class="tt-breathe"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="tt-ripples"></div>
   <div class="tt-stars"></div>
   <div class="tt-wrap">
     <div class="tt-logo">
@@ -569,6 +602,29 @@ body{
         box.appendChild(s);
       }
     }
+  })();
+
+  // 标题页水波涟漪:随机位置/大小,一圈圈荡开,不断刷新
+  (function(){
+    const box = document.querySelector(".tt-ripples");
+    if (!box) return;
+    function spawn(){
+      const r = document.createElement("div");
+      r.className = "ripple";
+      // 最大直径 ~ 标题图宽度(min(60vw,720px)),有大有小
+      const maxD = Math.min(window.innerWidth*0.6, 720);
+      const d = maxD * (0.35 + Math.random()*0.65);
+      r.style.width = r.style.height = d+"px";
+      r.style.left = (10+Math.random()*80)+"%";
+      r.style.top = (14+Math.random()*72)+"%";
+      const dur = 4 + Math.random()*4;   // 荡开慢一点
+      r.style.animationDuration = dur+"s";
+      box.appendChild(r);
+      setTimeout(()=>r.remove(), dur*1000+100);
+    }
+    // 初始铺几个,之后随机间隔不断刷新
+    for(let i=0;i<3;i++) setTimeout(spawn, i*900);
+    setInterval(()=>{ if(Math.random()<0.8) spawn(); }, 1300);
   })();
 
   // Blue_Gleam 1-4 顺序循环:一个播完切下一个,到4再回1
