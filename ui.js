@@ -248,12 +248,12 @@ const UI = (() => {
     box.classList.add("show");
     const bokeh = box.querySelector(".fx-bokeh");
     requestAnimationFrame(() => {
-      setTimeout(() => box.classList.add("blink"), 80);       // 眨眼 2s
+      setTimeout(() => box.classList.add("blink"), 80);       // 眨眼 2.8s
       setTimeout(() => {
-        box.classList.add("bloomed");                          // 睁眼白光绽开
-        bokeh && bokeh.play().catch(()=>{});                   // bokeh 出现
-      }, 2000);
-      setTimeout(() => box.classList.add("shifted"), 3500);    // 移左+信息
+        box.classList.add("bloomed");                          // 睁眼白光绽开(2s,中段停留)
+        bokeh && bokeh.play().catch(()=>{});
+      }, 2800);
+      setTimeout(() => box.classList.add("shifted"), 5000);    // 白光多停留后再移左
     });
   }
 

@@ -191,28 +191,43 @@ body{
 .eye-mask{position:absolute;inset:0;width:100%;height:100%;z-index:6;
   pointer-events:none;opacity:1;transition:opacity .7s ease;}
 .eye-shape{transform-box:fill-box;transform-origin:center;transform:scaleY(.04);}
-#ending.blink .eye-shape{animation:eyeBlink 2s ease forwards;}
+#ending.blink .eye-shape{animation:eyeBlink 2.8s ease forwards;}
 @keyframes eyeBlink{
-  0%{transform:scaleY(.04);}    /* 几乎闭合(细缝) */
-  16%{transform:scaleY(.72);}   /* 睁开 */
-  30%{transform:scaleY(.2);}    /* 眨1 */
-  46%{transform:scaleY(.8);}    /* 睁开 */
-  60%{transform:scaleY(.16);}   /* 眨2 */
-  100%{transform:scaleY(2.6);}  /* 最终睁得很大(露出大部分画面) */
+  0%{transform:scaleY(.04);}    /* 几乎闭合 */
+  12%{transform:scaleY(.72);}   /* 睁开 */
+  22%{transform:scaleY(.2);}    /* 眨1 */
+  33%{transform:scaleY(.8);}    /* 睁开 */
+  43%{transform:scaleY(.16);}   /* 眨2 */
+  58%{transform:scaleY(.5);}    /* 开始最终睁开 */
+  100%{transform:scaleY(2.6);}  /* 缓缓睁到最大(后段放慢) */
 }
 /* 睁大后眼罩平滑淡出(不硬切、不跳变) */
 #ending.bloomed .eye-mask{opacity:0;}
 
-/* 白光绽开 */
+/* 白光绽开:中心亮核 + 水波涟漪环,停留更久 */
 .rv-bloom{position:absolute;left:50%;top:42%;width:10%;height:10%;
   transform:translate(-50%,-50%);border-radius:50%;
-  background:radial-gradient(circle,#fff,rgba(234,244,255,.85) 30%,transparent 70%);
-  opacity:0;pointer-events:none;z-index:5;}
-#ending.bloomed .rv-bloom{animation:bloom 1.2s cubic-bezier(.2,.7,.3,1) forwards;}
+  background:radial-gradient(circle,#fff,rgba(234,244,255,.9) 28%,transparent 68%);
+  opacity:0;pointer-events:none;z-index:5;
+  filter:url(#ripple);}
+#ending.bloomed .rv-bloom{animation:bloom 2s cubic-bezier(.2,.6,.25,1) forwards;}
 @keyframes bloom{
   0%{opacity:0;width:6%;height:6%;}
-  25%{opacity:1;}
-  100%{opacity:0;width:240%;height:240%;}
+  18%{opacity:1;}
+  50%{opacity:1;width:120%;height:120%;}   /* 中段保持最亮,停留久 */
+  70%{opacity:.85;}
+  100%{opacity:0;width:260%;height:260%;}
+}
+/* 水波涟漪环:向外扩散的光环 */
+.rv-bloom::before,.rv-bloom::after{content:"";position:absolute;
+  left:50%;top:50%;width:100%;height:100%;
+  transform:translate(-50%,-50%);border-radius:50%;
+  border:2px solid rgba(234,244,255,.6);opacity:0;}
+#ending.bloomed .rv-bloom::before{animation:rippleRing 2s ease-out .1s forwards;}
+#ending.bloomed .rv-bloom::after{animation:rippleRing 2s ease-out .5s forwards;}
+@keyframes rippleRing{
+  0%{opacity:.7;width:20%;height:20%;border-width:3px;}
+  100%{opacity:0;width:320%;height:320%;border-width:0;}
 }
 
 /* 彩色立绘:绽开后浮现 */
@@ -220,7 +235,7 @@ body{
   object-fit:contain;object-position:center;
   opacity:0;transform:scale(1.1);}
 #ending.bloomed .rv-real{opacity:1;transform:scale(1);
-  transition:opacity 1.2s ease .35s,transform 1.4s cubic-bezier(.3,.7,.3,1) .35s;}
+  transition:opacity 1.3s ease .85s,transform 1.5s cubic-bezier(.3,.7,.3,1) .85s;}
 
 /* ===== 视频特效层 ===== */
 /* Blue_Gleam:垫在背景层(内容之下),1-4 顺序循环,透明度 50% */
@@ -229,7 +244,9 @@ body{
 /* 辉光 Bokeh:最上层 screen 叠加 */
 .fx-bokeh{position:fixed;inset:0;width:100%;height:100%;
   object-fit:cover;z-index:9999;pointer-events:none;
-  mix-blend-mode:screen;opacity:0;transition:opacity 1.2s ease;}
+  mix-blend-mode:screen;opacity:0;transition:opacity 1.2s ease;
+  transform:translateZ(0);will-change:opacity;
+  backface-visibility:hidden;}
 #ending.bloomed .fx-bokeh{opacity:.85;}
 
 
