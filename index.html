@@ -340,19 +340,96 @@ body{
   margin:1.4em 0;text-shadow:0 0 30px rgba(120,220,255,.5);}
 
 /* ---- 开场标题 ---- */
-#title-screen{position:fixed;inset:0;z-index:60;background:rgba(7,15,24,.78);
+#title-screen{position:fixed;inset:0;z-index:60;
+  background:#000 url("assets/cover/cover.png") center/cover no-repeat;
   display:flex;align-items:center;justify-content:center;flex-direction:column;
-  transition:opacity 1s;}
+  transition:opacity 1s;overflow:hidden;}
+#title-screen::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55));}
+/* 区域性明暗呼吸:多个光斑缓慢明暗浮动,叠在封面上 */
+.tt-breathe{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;}
+.tt-breathe span{position:absolute;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.5),transparent 66%);
+  filter:blur(30px);opacity:0;}
+.tt-breathe span:nth-child(1){left:24%;top:26%;width:22vw;height:28vh;
+  animation:breathe 7s ease-in-out infinite;}
+.tt-breathe span:nth-child(2){left:56%;top:16%;width:18vw;height:24vh;
+  animation:breathe 9s ease-in-out infinite 1.5s;}
+.tt-breathe span:nth-child(3){left:70%;top:44%;width:20vw;height:26vh;
+  animation:breathe 8s ease-in-out infinite 3s;}
+.tt-breathe span:nth-child(4){left:30%;top:58%;width:24vw;height:26vh;
+  animation:breathe 10s ease-in-out infinite .8s;}
+.tt-breathe span:nth-child(5){left:60%;top:64%;width:16vw;height:22vh;
+  animation:breathe 7.5s ease-in-out infinite 2.2s;}
+@keyframes breathe{0%,100%{opacity:0;}50%{opacity:.6;}}
+/* 星尘层:JS 生成的亮点 */
+.tt-stars{position:absolute;inset:0;pointer-events:none;}
+.tt-stars .st{position:absolute;border-radius:50%;background:#fff;
+  animation:twinkle linear infinite;}
+@keyframes twinkle{
+  0%{opacity:0;transform:translateY(0) scale(.6);}
+  20%{opacity:1;}
+  50%{opacity:.4;}
+  80%{opacity:.9;}
+  100%{opacity:0;transform:translateY(-24px) scale(1);}
+}
 #title-screen.hide{opacity:0;pointer-events:none}
-.tt-main{font-size:clamp(3rem,11vw,6rem);letter-spacing:.5em;
-  color:var(--glow);text-shadow:0 0 40px rgba(234,244,255,.3);
-  padding-left:.5em;}
-.tt-sub{color:var(--ink-dim);letter-spacing:.5em;margin-top:1.2em;
-  font-family:"Noto Sans SC",sans-serif;font-size:.9rem;}
-#start-btn{margin-top:3.4em;background:none;border:1px solid var(--line);
+.tt-wrap{position:relative;z-index:2;text-align:center;}
+
+/* 故障大标题 */
+.tt-main{position:relative;font-size:clamp(3rem,10vw,6.5rem);
+  letter-spacing:.32em;color:var(--glow);padding-left:.32em;
+  font-weight:700;text-shadow:0 0 40px rgba(234,244,255,.35);
+  animation:glitchJitter 4s steps(1) infinite;}
+/* RGB 分离双层(红/青),平时隐藏,故障帧才闪现错位 */
+.tt-main::before,.tt-main::after{content:attr(data-text);
+  position:absolute;left:0;top:0;width:100%;padding-left:.32em;
+  letter-spacing:.32em;opacity:0;}
+.tt-main::before{color:#ff3a6a;animation:glitchR 4s steps(1) infinite;}
+.tt-main::after{color:#3affe0;animation:glitchC 4s steps(1) infinite;}
+/* 平时静止,不定时抽搐一下 */
+@keyframes glitchJitter{
+  0%,89%,100%{transform:none;}
+  91%{transform:translate(-3px,1px);}
+  92%{transform:translate(2px,-2px);}
+  93%{transform:translate(-2px,0);}
+  94%{transform:none;}
+  61%{transform:translate(2px,0);}
+  62%{transform:none;}
+}
+@keyframes glitchR{
+  0%,89%,100%{opacity:0;transform:none;clip-path:inset(0 0 0 0);}
+  90%{opacity:.8;transform:translate(-5px,-2px);clip-path:inset(20% 0 40% 0);}
+  92%{opacity:.8;transform:translate(4px,1px);clip-path:inset(60% 0 10% 0);}
+  94%{opacity:0;transform:none;}
+  60%{opacity:.7;transform:translate(-4px,0);clip-path:inset(40% 0 30% 0);}
+  62%{opacity:0;}
+}
+@keyframes glitchC{
+  0%,89%,100%{opacity:0;transform:none;clip-path:inset(0 0 0 0);}
+  90%{opacity:.8;transform:translate(5px,2px);clip-path:inset(50% 0 20% 0);}
+  92%{opacity:.8;transform:translate(-4px,-1px);clip-path:inset(10% 0 60% 0);}
+  94%{opacity:0;transform:none;}
+  60%{opacity:.7;transform:translate(4px,0);clip-path:inset(25% 0 50% 0);}
+  62%{opacity:0;}
+}
+/* 偶尔整体扫描线撕裂 */
+.tt-main::selection{background:#3affe0;}
+
+.tt-sub{color:var(--ink);letter-spacing:.36em;margin-top:1.6em;
+  font-family:"Noto Sans SC",sans-serif;font-size:clamp(.8rem,1.6vw,1rem);
+  text-shadow:0 0 12px rgba(0,0,0,.8);
+  animation:subFlicker 5s steps(1) infinite;}
+@keyframes subFlicker{
+  0%,97%,100%{opacity:.85;}
+  98%{opacity:.4;}
+  99%{opacity:.85;}
+}
+#start-btn{margin-top:3.4em;position:relative;z-index:2;
+  background:rgba(0,0,0,.3);border:1px solid var(--line);
   color:var(--ink);padding:15px 46px;letter-spacing:.34em;cursor:pointer;
   font-family:"Noto Sans SC",sans-serif;border-radius:2px;font-size:.9rem;
-  transition:all .35s;}
+  transition:all .35s;backdrop-filter:blur(2px);}
 #start-btn:hover{border-color:var(--warm-deep);color:var(--warm);
   box-shadow:0 0 30px rgba(232,201,143,.12)}
 
@@ -408,9 +485,13 @@ body{
 
 <!-- 开场标题 -->
 <div id="title-screen">
-  <div class="tt-main">回响</div>
-  <div class="tt-sub">ECHO · TERRA</div>
-  <button id="start-btn">开始寻找</button>
+  <div class="tt-breathe"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="tt-stars"></div>
+  <div class="tt-wrap">
+    <div class="tt-main" data-text="泰拉·回响">泰拉·回响</div>
+    <div class="tt-sub">测 试 你 的 明 日 方 舟 soulmate</div>
+    <button id="start-btn">开始寻找</button>
+  </div>
 </div>
 
 <!-- 结局显影 -->
@@ -475,6 +556,26 @@ body{
 <script src="engine.js"></script>
 <script>
   UI.initScene();
+
+  // 标题页星尘:生成很多闪烁漂浮的亮点
+  (function(){
+    const box = document.querySelector(".tt-stars");
+    if (box) {
+      const N = 90;
+      for (let i=0;i<N;i++){
+        const s = document.createElement("div");
+        s.className = "st";
+        const size = Math.random()<0.8 ? (1+Math.random()*1.5) : (2+Math.random()*2.5);
+        s.style.width = s.style.height = size+"px";
+        s.style.left = Math.random()*100+"%";
+        s.style.top = Math.random()*100+"%";
+        s.style.animationDuration = (3+Math.random()*5)+"s";
+        s.style.animationDelay = -(Math.random()*8)+"s";
+        s.style.boxShadow = "0 0 "+(2+Math.random()*4)+"px rgba(255,255,255,.9)";
+        box.appendChild(s);
+      }
+    }
+  })();
 
   // Blue_Gleam 1-4 顺序循环:一个播完切下一个,到4再回1
   (function(){
