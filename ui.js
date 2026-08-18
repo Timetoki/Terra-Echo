@@ -233,9 +233,6 @@ const UI = (() => {
       box.querySelector(".rv-sil").src = `assets/silhouettes/${op.file}`;
       box.querySelector(".rv-real").src = `assets/portraits/${op.file}`;
     }
-    // 生成持续漂浮碎片 + 睁眼爆发碎片
-    buildFloatShards(box.querySelector(".fx-shards"));
-    buildBurstShards(box.querySelector(".fx-burst"));
 
     // 文字
     box.querySelector(".op-name").textContent = op ? op.name : "???";
@@ -251,59 +248,20 @@ const UI = (() => {
     const reBtn = $("#reunion");
     reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
 
-    // 序列:眼睛开合眨眼(2.2s) → 睁眼白光绽开+爆发碎片+彩色立绘 → 移左+信息
+    // 序列:眼睛开合眨眼(2s) → 睁眼白光绽开 → 立绘+视频特效 → 移左+信息
     box.classList.remove("blink", "bloomed", "shifted");
     box.classList.add("show");
+    const bokeh = box.querySelector(".fx-bokeh");
+    const codebg = box.querySelector(".fx-codebg");
     requestAnimationFrame(() => {
-      setTimeout(() => box.classList.add("blink"), 80);
-      setTimeout(() => box.classList.add("bloomed"), 2000);
-      setTimeout(() => box.classList.add("shifted"), 3500);
+      setTimeout(() => box.classList.add("blink"), 80);       // 眨眼 2s
+      setTimeout(() => {
+        box.classList.add("bloomed");                          // 睁眼白光绽开
+        bokeh && bokeh.play().catch(()=>{});                   // bokeh 出现
+        codebg && codebg.play().catch(()=>{});                 // code 背景循环
+      }, 2000);
+      setTimeout(() => box.classList.add("shifted"), 3500);    // 移左+信息
     });
-  }
-
-  // 持续漂浮的碎光(循环,从眨眼叠到结算)
-  function buildFloatShards(layer) {
-    layer.innerHTML = "";
-    const N = 22;
-    for (let i = 0; i < N; i++) {
-      const s = document.createElement("div");
-      s.className = "fshard";
-      const size = 6 + Math.random() * 20;
-      s.style.width = size + "px"; s.style.height = size + "px";
-      s.style.left = (Math.random() * 100) + "%";
-      s.style.top = (Math.random() * 100) + "%";
-      s.style.setProperty("--fr", (Math.random()*2-1)*160 + "deg");
-      const pts = [];
-      const n = 3 + (Math.random() * 2 | 0);
-      for (let k = 0; k < n; k++) pts.push(`${(Math.random()*100)|0}% ${(Math.random()*100)|0}%`);
-      s.style.clipPath = `polygon(${pts.join(",")})`;
-      s.style.animationDuration = (4 + Math.random() * 5) + "s";
-      s.style.animationDelay = -(Math.random() * 6) + "s";
-      layer.appendChild(s);
-    }
-  }
-
-  // 睁眼瞬间的爆发碎片(一次性,从中心飞散)
-  function buildBurstShards(layer) {
-    layer.innerHTML = "";
-    const N = 16;
-    for (let i = 0; i < N; i++) {
-      const s = document.createElement("div");
-      s.className = "bshard";
-      const ang = (i / N) * Math.PI * 2 + Math.random() * 0.4;
-      const dist = 200 + Math.random() * 300;
-      const size = 20 + Math.random() * 50;
-      s.style.setProperty("--gs", size + "px");
-      s.style.setProperty("--gx", Math.cos(ang) * dist + "px");
-      s.style.setProperty("--gy", Math.sin(ang) * dist + "px");
-      s.style.setProperty("--gr", (Math.random()*2-1)*180 + "deg");
-      const pts = [];
-      const n = 3 + (Math.random() * 2 | 0);
-      for (let k = 0; k < n; k++) pts.push(`${(Math.random()*100)|0}% ${(Math.random()*100)|0}%`);
-      s.style.clipPath = `polygon(${pts.join(",")})`;
-      s.style.animationDelay = (Math.random() * 0.15).toFixed(2) + "s";
-      layer.appendChild(s);
-    }
   }
 
   /* ---- 重逢剧情:点"走近那个人"后拉起 ---- */

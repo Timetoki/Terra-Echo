@@ -207,7 +207,7 @@ body{
 .eye-mask{position:absolute;inset:0;width:100%;height:100%;z-index:6;
   pointer-events:none;}
 .eye-shape{transform-box:fill-box;transform-origin:center;transform:scaleY(1);}
-#ending.blink .eye-shape{animation:eyeBlink 2.2s ease forwards;}
+#ending.blink .eye-shape{animation:eyeBlink 2s ease forwards;}
 @keyframes eyeBlink{
   0%{transform:scaleY(.04);}    /* 几乎闭合(细缝) */
   16%{transform:scaleY(.72);}   /* 睁开 */
@@ -218,8 +218,8 @@ body{
 }
 #ending.bloomed .eye-shape{transform:scaleY(3.5) !important;animation:none !important;
   transition:transform .6s ease;}
-/* 睁大后整个眼罩淡出,露出全画面 */
-#ending.bloomed .eye-mask{opacity:0;transition:opacity .8s ease .2s;}
+/* 睁大后整个眼罩彻底移除 */
+#ending.bloomed .eye-mask{display:none !important;}
 
 /* 白光绽开 */
 .rv-bloom{position:absolute;left:50%;top:42%;width:10%;height:10%;
@@ -240,44 +240,21 @@ body{
 #ending.bloomed .rv-real{opacity:1;transform:scale(1);
   transition:opacity 1.2s ease .35s,transform 1.4s cubic-bezier(.3,.7,.3,1) .35s;}
 
-/* ===== 持续光效层:从眨眼叠到结算,循环播放 ===== */
-.fx-layer{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden;
-  opacity:0;transition:opacity .8s ease;}
-#ending.show .fx-layer{opacity:1;}
-/* 棱镜:一道彩色折射光缓慢循环扫过 */
-.fx-prism{position:absolute;inset:-20%;
-  background:linear-gradient(115deg,transparent 40%,
-    rgba(150,210,255,.16) 47%,rgba(255,200,235,.14) 50%,
-    rgba(190,255,230,.16) 53%,transparent 60%);
-  mix-blend-mode:screen;
-  animation:prismLoop 7s linear infinite;}
-@keyframes prismLoop{
-  0%{transform:translateX(-40%) skewX(-10deg);}
-  100%{transform:translateX(40%) skewX(-10deg);}
-}
-/* 玻璃碎:漂浮的碎光,持续缓慢闪烁旋转 */
-.fx-shards .fshard{position:absolute;
-  background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(200,230,255,.15) 60%,transparent);
-  box-shadow:0 0 8px rgba(234,244,255,.4);
-  animation:fshardFloat linear infinite;}
-@keyframes fshardFloat{
-  0%{opacity:0;transform:translateY(10px) rotate(0deg) scale(.8);}
-  20%{opacity:.7;}
-  80%{opacity:.5;}
-  100%{opacity:0;transform:translateY(-30px) rotate(var(--fr)) scale(1.1);}
-}
-/* 睁眼那刻的爆发碎片(一次性,叠在持续层上) */
-.fx-burst{position:absolute;left:50%;top:42%;pointer-events:none;}
-.fx-burst .bshard{position:absolute;left:0;top:0;width:var(--gs);height:var(--gs);
-  background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(200,230,255,.3) 55%,transparent);
-  box-shadow:0 0 12px rgba(234,244,255,.7);opacity:0;}
-#ending.bloomed .fx-burst .bshard{animation:burstFly 1.3s ease forwards;}
-@keyframes burstFly{
-  0%{opacity:0;transform:translate(-50%,-50%) rotate(0deg) scale(.3);}
-  18%{opacity:1;}
-  100%{opacity:0;transform:translate(calc(-50% + var(--gx)),calc(-50% + var(--gy))) rotate(var(--gr)) scale(1.1);}
-}
-
+/* ===== 视频特效层 ===== */
+/* Blue_Gleam:全局最上层,全程 screen 叠加,永不消失 */
+#global-gleam{position:fixed;inset:0;width:100%;height:100%;
+  object-fit:cover;z-index:9999;pointer-events:none;
+  mix-blend-mode:screen;opacity:.9;}
+/* Bokeh:结算眨眼白光后出现,screen 最上层 */
+.fx-bokeh{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;z-index:8;pointer-events:none;
+  mix-blend-mode:screen;opacity:0;transition:opacity 1.2s ease;}
+#ending.bloomed .fx-bokeh{opacity:.85;}
+/* code:结算立绘出现后,铺最底层背景,透明度 80,循环 */
+.fx-codebg{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;z-index:0;pointer-events:none;
+  opacity:0;transition:opacity 1.4s ease;}
+#ending.bloomed .fx-codebg{opacity:.8;}
 
 
 
@@ -445,7 +422,9 @@ body{
 
 <!-- 结局显影 -->
 <div id="ending">
-  <!-- 显影舞台:眼睑开合(露出只见头的朦胧剪影) → 睁眼白光绽开 → 彩色立绘 → 移左 -->
+  <!-- code 视频:立绘出现后铺最底层背景,循环 -->
+  <video class="fx-codebg" src="assets/fx/code.mp4" muted loop playsinline></video>
+  <!-- 显影舞台:眼睑开合 → 睁眼白光绽开 → 彩色立绘 → 移左 -->
   <div class="reveal-stage">
     <img class="rv-sil" alt="">        <!-- 朦胧发光白剪影(只见头) -->
     <img class="rv-real" alt="">       <!-- 彩色立绘 -->
@@ -456,18 +435,13 @@ body{
     <defs>
       <mask id="eyeHole">
         <rect width="1440" height="860" fill="white"/>
-        <!-- 杏仁形眼孔:两条二次贝塞尔弧对合。用 scaleY 控制开合 -->
         <path class="eye-shape" d="M 320 430 Q 720 200 1120 430 Q 720 660 320 430 Z" fill="black"/>
       </mask>
     </defs>
     <rect width="1440" height="860" fill="#000" mask="url(#eyeHole)"/>
   </svg>
-  <!-- 持续光效层(棱镜+玻璃碎):从眨眼叠到结算,循环 -->
-  <div class="fx-layer">
-    <div class="fx-prism"></div>
-    <div class="fx-shards"></div>
-    <div class="fx-burst"></div>
-  </div>
+  <!-- Bokeh 视频:眨眼白光后出现,screen 最上层 -->
+  <video class="fx-bokeh" src="assets/fx/Bright_Spinning_Bokeh_2.mp4" muted loop playsinline></video>
   <!-- 半透明信息浮层 -->
   <div class="end-info">
     <div class="op-eyebrow">你要找的人是</div>
@@ -501,6 +475,9 @@ body{
       重新开始观测</button>
   </div>
 </div>
+
+<!-- 全局 Blue_Gleam:全程 screen 叠在最上层,永不消失 -->
+<video id="global-gleam" src="assets/fx/Blue_Gleam_1.mp4" muted loop autoplay playsinline></video>
 
 <script src="data.js"></script>
 <script src="ui.js"></script>
