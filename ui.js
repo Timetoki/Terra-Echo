@@ -243,18 +243,40 @@ const UI = (() => {
     const reBtn = $("#reunion");
     reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
 
-    // 序列:眼睛开合眨眼(2s) → 睁眼白光绽开 → 立绘+视频特效 → 移左+信息
+    // 生成 CSS 镜头辉光散景光斑
+    buildBokeh(box.querySelector(".fx-bokeh-css"));
+
+    // 序列:眼睛开合眨眼(2.8s) → 睁眼白光绽开 → 立绘+散景 → 移左+信息
     box.classList.remove("blink", "bloomed", "shifted");
     box.classList.add("show");
-    const bokeh = box.querySelector(".fx-bokeh");
     requestAnimationFrame(() => {
-      setTimeout(() => box.classList.add("blink"), 80);       // 眨眼 2.8s
-      setTimeout(() => {
-        box.classList.add("bloomed");                          // 睁眼白光绽开(2s,中段停留)
-        bokeh && bokeh.play().catch(()=>{});
-      }, 2800);
-      setTimeout(() => box.classList.add("shifted"), 5000);    // 白光多停留后再移左
+      setTimeout(() => box.classList.add("blink"), 80);
+      setTimeout(() => box.classList.add("bloomed"), 2800);
+      setTimeout(() => box.classList.add("shifted"), 5000);
     });
+  }
+
+  // 生成圆形镜头辉光散景(大小不一、缓慢飘动+明暗闪烁)
+  function buildBokeh(layer){
+    if (!layer) return;
+    layer.innerHTML = "";
+    const N = 22;
+    for (let i=0;i<N;i++){
+      const d = document.createElement("div");
+      d.className = "bk";
+      const size = 20 + Math.random()*120;        // 有大有小
+      d.style.width = d.style.height = size+"px";
+      d.style.left = Math.random()*100+"%";
+      d.style.top = Math.random()*100+"%";
+      d.style.setProperty("--bx", (Math.random()*2-1)*60+"px");
+      d.style.setProperty("--by", (Math.random()*2-1)*60+"px");
+      const floatDur = 6 + Math.random()*8;
+      const glowDur = 3 + Math.random()*4;
+      d.style.animationDuration = floatDur+"s, "+glowDur+"s";
+      d.style.animationDelay = -(Math.random()*floatDur)+"s, "+(-(Math.random()*glowDur))+"s";
+      d.style.opacity = (0.25+Math.random()*0.5).toFixed(2);
+      layer.appendChild(d);
+    }
   }
 
   /* ---- 重逢剧情:点"走近那个人"后拉起 ---- */

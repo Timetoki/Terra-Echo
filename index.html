@@ -176,7 +176,13 @@ body{
              height 1.4s cubic-bezier(.5,0,.2,1);}
 #ending.shifted .reveal-stage{left:30%;
   width:min(88vh,680px);height:min(120vh,920px);}
-@media(max-width:760px){#ending.shifted .reveal-stage{left:50%;top:34%}}
+@media(max-width:760px){
+  /* 手机结算:立绘用 vw 适配竖屏,居中偏上;文字在下方 */
+  .reveal-stage{width:96vw!important;height:96vw!important;
+    top:38%!important;left:50%!important;}
+  #ending.shifted .reveal-stage{width:96vw!important;height:96vw!important;
+    top:32%!important;left:50%!important;}
+}
 
 /* 朦胧发光白剪影:眨眼时露头,缩小(不要太大) */
 .rv-sil{position:absolute;inset:0;width:100%;height:100%;
@@ -241,13 +247,24 @@ body{
 /* Blue_Gleam:垫在背景层(内容之下),1-4 顺序循环,透明度 50% */
 #global-gleam{position:fixed;inset:0;width:100%;height:100%;
   object-fit:cover;z-index:0;pointer-events:none;opacity:.5;}
-/* 辉光 Bokeh:最上层 screen 叠加 */
-.fx-bokeh{position:fixed;inset:0;width:100%;height:100%;
-  object-fit:cover;z-index:9999;pointer-events:none;
-  mix-blend-mode:screen;opacity:0;transition:opacity 1.2s ease;
-  transform:translateZ(0);will-change:opacity;
-  backface-visibility:hidden;}
-#ending.bloomed .fx-bokeh{opacity:.85;}
+/* 圆形镜头辉光散景:CSS 光斑,screen 叠最上层 */
+.fx-bokeh-css{position:fixed;inset:0;z-index:9999;pointer-events:none;
+  mix-blend-mode:screen;opacity:0;transition:opacity 1.4s ease;overflow:hidden;}
+#ending.bloomed .fx-bokeh-css{opacity:1;}
+.fx-bokeh-css .bk{position:absolute;border-radius:50%;
+  background:radial-gradient(circle at 38% 34%,
+    rgba(255,255,255,.9),rgba(210,230,255,.5) 42%,rgba(180,210,255,.12) 70%,transparent);
+  filter:blur(2px);
+  animation:bkFloat ease-in-out infinite,bkGlow ease-in-out infinite;}
+@keyframes bkFloat{
+  0%{transform:translate(0,0);}
+  50%{transform:translate(var(--bx),var(--by));}
+  100%{transform:translate(0,0);}
+}
+@keyframes bkGlow{
+  0%,100%{opacity:.25;}
+  50%{opacity:.85;}
+}
 
 
 
@@ -261,7 +278,7 @@ body{
   opacity:0;transition:opacity 1s ease,transform 1s ease;}
 #ending.shifted .end-info{opacity:1;transform:translateY(-50%) translateX(0);}
 @media(max-width:760px){
-  .end-info{top:auto;bottom:4vh;right:5%;left:5%;width:auto;max-height:none;
+  .end-info{top:auto;bottom:3vh;right:4%;left:4%;width:auto;max-height:46vh;
     transform:translateX(0);text-align:center;}
   #ending.shifted .end-info{transform:translateX(0)}
 }
@@ -447,6 +464,12 @@ body{
   98%{opacity:.4;}
   99%{opacity:.85;}
 }
+/* ===== 手机端:关闭水波扰动(卡),标题更大,副标题更小 ===== */
+@media(max-width:760px){
+  #title-screen .tt-cover{filter:blur(1.5px)!important;}  /* 去掉 feDisplacementMap */
+  .tt-logo{width:min(92vw,560px);}                        /* 标题放大 */
+  .tt-sub{font-size:1.15rem;letter-spacing:.04em;margin-top:-.3em;}  /* 副标题小两号 */
+}
 #start-btn{margin-top:3.4em;position:relative;z-index:2;
   background:rgba(0,0,0,.3);border:1px solid var(--line);
   color:var(--ink);padding:15px 46px;letter-spacing:.34em;cursor:pointer;
@@ -552,7 +575,8 @@ body{
     <rect width="1440" height="860" fill="#000" mask="url(#eyeHole)"/>
   </svg>
   <!-- Bokeh 视频:眨眼白光后出现,screen 最上层 -->
-  <video class="fx-bokeh" src="assets/fx/Bright_Spinning_Bokeh_2.mp4" muted loop playsinline></video>
+  <!-- 圆形镜头辉光散景层(CSS,替代视频) -->
+  <div class="fx-bokeh-css"></div>
   <!-- 半透明信息浮层 -->
   <div class="end-info">
     <div class="op-eyebrow">你要找的人是</div>
