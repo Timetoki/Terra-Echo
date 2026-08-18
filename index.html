@@ -340,28 +340,35 @@ body{
   margin:1.4em 0;text-shadow:0 0 30px rgba(120,220,255,.5);}
 
 /* ---- 开场标题 ---- */
-#title-screen{position:fixed;inset:0;z-index:60;
-  background:#000 url("assets/cover/cover.png") center/cover no-repeat;
+#title-screen{position:fixed;inset:0;z-index:60;background:#000;
   display:flex;align-items:center;justify-content:center;flex-direction:column;
   transition:opacity 1s;overflow:hidden;}
+/* 封面背景层:轻微虚化 */
+#title-screen .tt-cover{position:absolute;inset:-2%;
+  background:url("assets/cover/cover.png") center/cover no-repeat;
+  filter:blur(3px);}
 #title-screen::before{content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55));}
-/* 区域性明暗呼吸:多个光斑缓慢明暗浮动,叠在封面上 */
-.tt-breathe{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;}
+/* 头像区忽明忽暗:光斑提亮,随机明暗浮动 */
+.tt-breathe{position:absolute;inset:0;pointer-events:none;mix-blend-mode:lighten;}
 .tt-breathe span{position:absolute;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.5),transparent 66%);
-  filter:blur(30px);opacity:0;}
-.tt-breathe span:nth-child(1){left:24%;top:26%;width:22vw;height:28vh;
-  animation:breathe 7s ease-in-out infinite;}
-.tt-breathe span:nth-child(2){left:56%;top:16%;width:18vw;height:24vh;
-  animation:breathe 9s ease-in-out infinite 1.5s;}
-.tt-breathe span:nth-child(3){left:70%;top:44%;width:20vw;height:26vh;
-  animation:breathe 8s ease-in-out infinite 3s;}
-.tt-breathe span:nth-child(4){left:30%;top:58%;width:24vw;height:26vh;
-  animation:breathe 10s ease-in-out infinite .8s;}
-.tt-breathe span:nth-child(5){left:60%;top:64%;width:16vw;height:22vh;
-  animation:breathe 7.5s ease-in-out infinite 2.2s;}
-@keyframes breathe{0%,100%{opacity:0;}50%{opacity:.6;}}
+  background:radial-gradient(circle,rgba(210,230,255,.7),transparent 62%);
+  filter:blur(26px);opacity:0;}
+.tt-breathe span:nth-child(1){left:22%;top:24%;width:16vw;height:30vh;
+  animation:breathe 6s ease-in-out infinite;}
+.tt-breathe span:nth-child(2){left:40%;top:14%;width:14vw;height:28vh;
+  animation:breathe 7.5s ease-in-out infinite 1.2s;}
+.tt-breathe span:nth-child(3){left:58%;top:12%;width:15vw;height:30vh;
+  animation:breathe 6.5s ease-in-out infinite 2.6s;}
+.tt-breathe span:nth-child(4){left:74%;top:18%;width:16vw;height:30vh;
+  animation:breathe 8s ease-in-out infinite .6s;}
+.tt-breathe span:nth-child(5){left:30%;top:56%;width:15vw;height:28vh;
+  animation:breathe 7s ease-in-out infinite 3.4s;}
+.tt-breathe span:nth-child(6){left:60%;top:60%;width:14vw;height:26vh;
+  animation:breathe 6.8s ease-in-out infinite 1.8s;}
+.tt-breathe span:nth-child(7){left:78%;top:56%;width:14vw;height:28vh;
+  animation:breathe 7.8s ease-in-out infinite 4s;}
+@keyframes breathe{0%,100%{opacity:0;}50%{opacity:.85;}}
 /* 星尘层:JS 生成的亮点 */
 .tt-stars{position:absolute;inset:0;pointer-events:none;}
 .tt-stars .st{position:absolute;border-radius:50%;background:#fff;
@@ -415,9 +422,9 @@ body{
 /* 偶尔整体扫描线撕裂 */
 .tt-main::selection{background:#3affe0;}
 
-.tt-sub{color:var(--ink);letter-spacing:.36em;margin-top:1.6em;
-  font-family:"Noto Sans SC",sans-serif;font-size:clamp(.8rem,1.6vw,1rem);
-  text-shadow:0 0 12px rgba(0,0,0,.8);
+.tt-sub{color:#fff;letter-spacing:.28em;margin-top:1.8em;
+  font-family:"Noto Sans SC",sans-serif;font-size:clamp(1.1rem,2.4vw,1.7rem);
+  font-weight:500;text-shadow:0 0 16px rgba(0,0,0,.9),0 0 30px rgba(234,244,255,.25);
   animation:subFlicker 5s steps(1) infinite;}
 @keyframes subFlicker{
   0%,97%,100%{opacity:.85;}
@@ -484,7 +491,8 @@ body{
 
 <!-- 开场标题 -->
 <div id="title-screen">
-  <div class="tt-breathe"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="tt-cover"></div>
+  <div class="tt-breathe"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
   <div class="tt-stars"></div>
   <div class="tt-wrap">
     <div class="tt-logo">
@@ -492,7 +500,7 @@ body{
       <img class="tl-r" src="assets/cover/echo.png" alt="" aria-hidden="true">
       <img class="tl-c" src="assets/cover/echo.png" alt="" aria-hidden="true">
     </div>
-    <div class="tt-sub">测 试 你 的 明 日 方 舟 soulmate</div>
+    <div class="tt-sub">找出属于你的明日方舟命定之人</div>
     <button id="start-btn">开始寻找</button>
   </div>
 </div>
