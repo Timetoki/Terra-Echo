@@ -230,12 +230,14 @@ const UI = (() => {
 
     const name = op ? op.name : "???";
     box.querySelector(".op-name").textContent = name;
-    const idName = box.querySelector(".id-name");
-    const idCode = box.querySelector(".id-code");
-    const idTier = box.querySelector(".id-tier");
-    if (idName) idName.textContent = name;
-    if (idCode) idCode.textContent = (op && op.code ? op.code : "UNKNOWN").toUpperCase();
-    if (idTier) idTier.textContent = op && op.tier === "core" ? "CORE" : "DAILY";
+    const dash = "—";
+    const set = (sel, v) => { const el = box.querySelector(sel); if (el) el.textContent = v || dash; };
+    set(".id-en", op && (op.enName || op.en));
+    set(".id-gender", op && op.gender);
+    set(".id-faction", op && op.faction);
+    set(".id-origin", op && op.origin);
+    set(".id-race", op && op.race);
+    set(".id-class", op && (op.subclass || op.job));
     const noEl = $("#op-data-no");
     if (noEl) noEl.textContent = "#" + dataNo(op);
 

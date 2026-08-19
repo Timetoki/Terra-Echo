@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>回响 · 泰拉</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   /* 冷色记忆基调 —— 深蓝黑到暗青,白光为唯一亮部 */
@@ -191,11 +193,17 @@ body{
 #ending.shifted .skew-white,#ending.shifted .skew-black{transform:none;}
 .skew-cut{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;
   overflow:visible;}
-.skew-cut polyline{fill:none;stroke:#fff;stroke-width:1.5;vector-effect:non-scaling-stroke;
-  filter:drop-shadow(0 0 4px rgba(220,235,255,.9));}
+.skew-cut .burn-far{fill:none;stroke:#c45a18;stroke-width:22;stroke-linejoin:miter;
+  filter:blur(13px);opacity:.42;mix-blend-mode:screen;}
+.skew-cut .burn-mid{fill:none;stroke:#ffd9a0;stroke-width:10;stroke-linejoin:miter;
+  filter:blur(6px);opacity:.7;mix-blend-mode:screen;}
+.skew-cut .burn-hot{fill:none;stroke:#fff6e8;stroke-width:3.5;stroke-linejoin:miter;
+  filter:blur(2.2px);opacity:.85;mix-blend-mode:screen;}
+.skew-cut .burn-edge{fill:none;stroke:rgba(255,248,235,.28);stroke-width:1;
+  vector-effect:non-scaling-stroke;}
 .sw-deco{position:absolute;inset:0;pointer-events:none;}
 .sw-marks{position:absolute;top:18px;left:22px;display:flex;gap:18px;
-  font-family:ui-monospace,Consolas,monospace;font-size:10px;letter-spacing:.28em;
+  font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:12px;letter-spacing:.28em;
   color:#9aa3ad;}
 .sw-circuit{position:absolute;left:18px;top:48px;width:min(38vw,420px);height:2px;
   background:linear-gradient(90deg,#1a1a1a,transparent);
@@ -204,7 +212,7 @@ body{
   border:1px solid #1a1a1a;border-radius:50%;top:-3px;background:#efefef;}
 .sw-circuit::before{left:0;} .sw-circuit::after{left:42%;}
 .sb-meta{position:absolute;top:22px;right:28px;text-align:right;color:#c8cdd3;
-  font-family:ui-monospace,Consolas,monospace;opacity:0;
+  font-family:"Noto Serif SC","Songti SC","SimSun",serif;opacity:0;
   transform:translateX(24px);transition:opacity .7s .35s,transform .7s .35s;}
 #ending.shifted .sb-meta{opacity:1;transform:none;}
 .sb-data-no{font-size:11px;letter-spacing:.22em;}
@@ -214,18 +222,18 @@ body{
     #e8e8e8 0 2px,transparent 2px 4px,#e8e8e8 4px 5px,transparent 5px 8px,
     #e8e8e8 8px 11px,transparent 11px 13px,#e8e8e8 13px 14px,transparent 14px 16px);}
 
-/* 显影舞台:绽开后立绘滑向右侧,压过折线 */
+/* 显影舞台:绽开后立绘落到白区(折线左侧),压过灼边 */
 .reveal-stage{position:absolute;top:50%;left:50%;
   width:min(150vh,1100px);height:min(150vh,1100px);
-  transform:translate(-50%,-50%);z-index:4;
+  transform:translate(-50%,-50%);z-index:3;
   transition:left 1.15s cubic-bezier(.16,.82,.28,1),
              width 1.15s cubic-bezier(.16,.82,.28,1),
              height 1.15s cubic-bezier(.16,.82,.28,1);}
-#ending.shifted .reveal-stage{left:72%;
+#ending.shifted .reveal-stage{left:34%;
   width:min(92vh,720px);height:min(128vh,980px);}
 @media(max-width:760px){
   .reveal-stage{width:130vw;height:130vw;top:48%;}
-  #ending.shifted .reveal-stage{left:78%;width:118vw;height:118vw;top:52%;}
+  #ending.shifted .reveal-stage{left:38%;width:118vw;height:118vw;top:52%;}
 }
 
 /* 朦胧发光白剪影:眨眼时露头,缩小(不要太大) */
@@ -376,54 +384,68 @@ body{
 
 
 
-/* 左白区科技信息:从左滑入。重逢正文不放这里,留给底部拉起层 */
-.end-info{position:absolute;top:0;bottom:72px;left:0;z-index:5;
+/* 左白区信息:宋体。重逢正文不放这里 */
+.end-info{position:absolute;top:0;bottom:84px;left:0;z-index:5;
   width:min(48vw,560px);padding:72px 4vw 24px 4.5vw;
   display:flex;flex-direction:column;justify-content:space-between;
-  font-family:"Noto Sans SC","Segoe UI",sans-serif;
+  font-family:"Noto Serif SC","Songti SC","SimSun",serif;
   opacity:0;transform:translateX(-48px);
   transition:opacity 1s cubic-bezier(.16,.82,.28,1) .15s,
              transform 1.05s cubic-bezier(.16,.82,.28,1) .15s;}
 #ending.shifted .end-info{opacity:1;transform:none;}
-.op-kicker{font-family:ui-monospace,Consolas,monospace;
-  font-size:clamp(.72rem,1.4vw,.9rem);letter-spacing:.28em;color:#1a1a1a;font-weight:700;}
-.op-ask{margin-top:8vh;}
+.op-kicker{
+  font-size:clamp(.72rem,1.4vw,.9rem);letter-spacing:.28em;color:#1a1a1a;font-weight:700;
+  text-shadow:0 0 12px rgba(255,255,255,.8);}
+.op-ask{margin-top:6vh;}
 .op-ask-l,.op-ask-r{display:block;font-size:clamp(.92rem,1.8vw,1.12rem);
-  letter-spacing:.18em;color:#4a525c;}
+  letter-spacing:.18em;color:#2a3038;text-shadow:0 1px 10px rgba(255,255,255,.9);}
 .op-name{font-size:clamp(3.2rem,7.2vw,6.4rem);letter-spacing:.08em;
-  color:#111;line-height:.95;font-weight:800;margin:.18em 0 .12em;
-  font-family:"Noto Sans SC","Segoe UI",sans-serif;}
-.id-card{border:1px solid #1c1c1c;background:rgba(255,255,255,.55);
-  padding:14px 16px 16px;max-width:340px;
-  display:grid;grid-template-columns:44px 1fr;gap:8px 14px;align-items:center;}
-.id-mark{grid-row:1 / span 5;width:44px;height:44px;border:1px solid #111;
+  color:#111;line-height:.95;font-weight:700;margin:.18em 0 .12em;
+  font-family:"Noto Serif SC","Songti SC","SimSun",serif;
+  text-shadow:0 2px 18px rgba(255,255,255,.85);}
+.id-card{border:1px solid #1c1c1c;background:rgba(255,255,255,.72);
+  padding:14px 16px 16px;max-width:380px;
+  display:grid;grid-template-columns:44px 1fr;gap:7px 14px;align-items:center;
+  backdrop-filter:blur(6px);}
+.id-mark{grid-row:1 / span 8;width:44px;height:44px;align-self:start;margin-top:4px;
+  border:1px solid #111;
   background:conic-gradient(from 45deg,#111 0 25%,transparent 0 50%,#111 0 75%,transparent 0);
   box-shadow:inset 0 0 0 10px #efefef;}
-.id-title{grid-column:2;font-family:ui-monospace,Consolas,monospace;
-  font-size:10px;letter-spacing:.32em;color:#111;font-weight:700;}
-.id-row{grid-column:2;display:flex;justify-content:space-between;gap:12px;
-  font-family:ui-monospace,Consolas,monospace;font-size:11px;letter-spacing:.12em;
-  border-top:1px solid rgba(0,0,0,.12);padding-top:6px;color:#6a727c;}
-.id-row b{color:#111;font-weight:700;letter-spacing:.08em;}
+.id-title{grid-column:2;font-size:12px;letter-spacing:.32em;color:#111;font-weight:700;}
+.id-row{grid-column:2;display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+  font-size:13px;letter-spacing:.08em;
+  border-top:1px solid rgba(0,0,0,.12);padding-top:5px;color:#5a6270;}
+.id-row span{flex:0 0 4.2em;}
+.id-row b{color:#111;font-weight:700;letter-spacing:.04em;text-align:right;line-height:1.35;}
 #replay{grid-column:2;justify-self:start;margin-top:4px;background:none;
-  border:1px solid #111;color:#111;padding:8px 14px;letter-spacing:.2em;
-  font-family:ui-monospace,Consolas,monospace;font-size:10px;cursor:pointer;}
+  border:1px solid #111;color:#111;padding:8px 14px;letter-spacing:.28em;
+  font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:13px;cursor:pointer;}
 #replay:hover{background:#111;color:#fff;}
 
-.pull-bar{position:absolute;left:0;right:0;bottom:0;z-index:8;height:64px;
+.pull-bar{position:absolute;left:0;right:0;bottom:0;z-index:8;height:78px;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 22px;cursor:pointer;user-select:none;
-  background:linear-gradient(180deg,transparent,rgba(8,8,10,.82));
-  color:#c5ccd4;font-family:ui-monospace,Consolas,monospace;
+  background:linear-gradient(180deg,transparent 0%,rgba(8,8,10,.55) 28%,rgba(8,8,10,.92));
+  color:#f3ead8;font-family:"Noto Serif SC","Songti SC","SimSun",serif;
+  border-top:1px solid rgba(255,214,150,.55);
   opacity:0;transform:translateY(16px);
-  transition:opacity .6s .4s,transform .6s .4s;}
-#ending.shifted .pull-bar{opacity:1;transform:none;}
-.pull-bar .pb-side{font-size:9px;letter-spacing:.28em;opacity:.55;}
-.pull-bar .pb-mid{display:flex;flex-direction:column;align-items:center;gap:6px;
-  font-size:11px;letter-spacing:.32em;}
-.pull-bar .pb-mid i{display:block;width:42px;height:3px;border-radius:2px;
-  background:rgba(234,244,255,.55);}
-.pull-bar .pb-mid span{opacity:.9;}
+  transition:transform .6s .4s;}
+#ending.shifted .pull-bar{transform:none;animation:pullPulse 1.25s ease-in-out infinite;}
+@keyframes pullPulse{
+  0%,100%{opacity:.62;box-shadow:0 -8px 22px rgba(255,196,120,.12);}
+  50%{opacity:1;box-shadow:0 -12px 36px rgba(255,220,160,.55),inset 0 0 24px rgba(255,210,140,.18);}
+}
+.pull-bar .pb-side{font-size:12px;letter-spacing:.28em;opacity:.7;}
+.pull-bar .pb-mid{display:flex;flex-direction:column;align-items:center;gap:7px;
+  font-size:15px;letter-spacing:.28em;font-weight:700;}
+.pull-bar .pb-mid i{display:block;width:56px;height:5px;border-radius:3px;
+  background:#ffe7b8;box-shadow:0 0 12px rgba(255,220,160,.9);
+  animation:pullChev .9s ease-in-out infinite;}
+@keyframes pullChev{
+  0%,100%{transform:translateY(0);opacity:.55;}
+  50%{transform:translateY(-5px);opacity:1;}
+}
+.pull-bar .pb-mid span{text-shadow:0 0 12px rgba(255,220,160,.45);}
 
 #reunion-scene{position:fixed;inset:0;z-index:50;display:none;
   background:rgba(8,10,14,.62);backdrop-filter:blur(10px);
@@ -442,11 +464,11 @@ body{
   min-height:28vh;display:flex;flex-direction:column;justify-content:flex-end;
   backdrop-filter:blur(8px);}
 .rs-speaker{color:var(--warm);font-size:.86rem;letter-spacing:.28em;
-  margin-bottom:.7em;min-height:1.1em;font-family:"Noto Sans SC",sans-serif;}
+  margin-bottom:.7em;min-height:1.1em;font-family:"Noto Serif SC","Songti SC","SimSun",serif;}
 .rs-dialogue{font-size:clamp(1.02rem,2.2vw,1.34rem);line-height:2;max-width:52em;
-  min-height:3.6em;}
+  min-height:3.6em;font-family:"Noto Serif SC","Songti SC","SimSun",serif;}
 .rs-hint{margin-top:1.2em;color:var(--ink-dim);font-size:.82rem;letter-spacing:.2em;
-  opacity:0;transition:opacity .4s;font-family:"Noto Sans SC",sans-serif;}
+  opacity:0;transition:opacity .4s;font-family:"Noto Serif SC","Songti SC","SimSun",serif;}
 .rs-hint.show{opacity:.7}
 
 @media(max-width:760px){
@@ -764,7 +786,10 @@ body{
       </div>
     </div>
     <svg class="skew-cut" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <polyline points="56,0 38,28 68,56 42,100"/>
+      <polyline class="burn-far" points="56,0 38,28 68,56 42,100"/>
+      <polyline class="burn-mid" points="56,0 38,28 68,56 42,100"/>
+      <polyline class="burn-hot" points="56,0 38,28 68,56 42,100"/>
+      <polyline class="burn-edge" points="56,0 38,28 68,56 42,100"/>
     </svg>
   </div>
   <!-- 显影舞台:眼睑开合 → 睁眼白光绽开 → 彩色立绘 → 滑向右侧 -->
@@ -788,7 +813,7 @@ body{
     <div class="fx-flare-round"></div>
   </div>
   <div class="end-info">
-    <div class="op-kicker">测试结束 // TEST TERMINATED</div>
+    <div class="op-kicker">测试结束</div>
     <div class="op-ask">
       <span class="op-ask-l">你要找的人是</span>
       <div class="op-name"></div>
@@ -796,20 +821,23 @@ body{
     </div>
     <div class="id-card">
       <div class="id-mark" aria-hidden="true"></div>
-      <div class="id-title">IDENTITY CONFIRMED</div>
-      <div class="id-row"><span>NAME</span><b class="id-name"></b></div>
-      <div class="id-row"><span>CODENAME</span><b class="id-code"></b></div>
-      <div class="id-row"><span>CLASS</span><b class="id-tier"></b></div>
-      <button id="replay">REPLAY</button>
+      <div class="id-title">身份确认</div>
+      <div class="id-row"><span>代号</span><b class="id-en"></b></div>
+      <div class="id-row"><span>性别</span><b class="id-gender"></b></div>
+      <div class="id-row"><span>势力</span><b class="id-faction"></b></div>
+      <div class="id-row"><span>出身地</span><b class="id-origin"></b></div>
+      <div class="id-row"><span>种族</span><b class="id-race"></b></div>
+      <div class="id-row"><span>子职业</span><b class="id-class"></b></div>
+      <button id="replay">再寻找一次</button>
     </div>
   </div>
   <div class="pull-bar" id="pull-bar">
-    <span class="pb-side">SYSTEM LOG</span>
+    <span class="pb-side">系统日志</span>
     <div class="pb-mid">
       <i></i>
-      <span>// 点击或上拉 查看重逢 · TAP / PULL</span>
+      <span>点击或上拉，查看重逢</span>
     </div>
-    <span class="pb-side">CONFIDENTIAL</span>
+    <span class="pb-side">机密</span>
   </div>
 </div>
 <!-- 重逢剧情覆盖层(点击/上拉后从下方升起,半透明盖住结算页) -->
