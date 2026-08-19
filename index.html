@@ -248,7 +248,7 @@ body{
 #global-gleam{position:fixed;inset:0;width:100%;height:100%;
   object-fit:cover;z-index:0;pointer-events:none;opacity:.5;}
 /* 镜头炫光:柔光晕染垫底 + 横向长方形光带扫过 + 左上角圆形光晕,screen 叠最上层 */
-.fx-flare{position:fixed;inset:0;z-index:9999;pointer-events:none;
+.fx-flare{position:fixed;inset:0;z-index:20;pointer-events:none;
   mix-blend-mode:screen;opacity:0;transition:opacity 1.4s ease;overflow:hidden;}
 #ending.bloomed .fx-flare{opacity:1;}
 /* 几团很虚的柔光晕染,JS 生成 6 团 */
