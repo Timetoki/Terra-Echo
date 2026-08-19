@@ -243,8 +243,8 @@ const UI = (() => {
     const reBtn = $("#reunion");
     reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
 
-    // 生成 CSS 镜头辉光散景光斑
-    buildBokeh(box.querySelector(".fx-bokeh-css"));
+    // 生成镜头炫光的底层柔光晕染
+    buildHaze(box.querySelector(".haze-wrap"));
 
     // 序列:眼睛开合眨眼(2.8s) → 睁眼白光绽开 → 立绘+散景 → 移左+信息
     box.classList.remove("blink", "bloomed", "shifted");
@@ -256,25 +256,25 @@ const UI = (() => {
     });
   }
 
-  // 生成圆形镜头辉光散景(大小不一、缓慢飘动+明暗闪烁)
-  function buildBokeh(layer){
+  // 生成几团模糊晕染的白色柔光垫底(不规则、大小不一、缓慢漂移)
+  function buildHaze(layer){
     if (!layer) return;
     layer.innerHTML = "";
-    const N = 22;
+    const N = 6;
     for (let i=0;i<N;i++){
       const d = document.createElement("div");
-      d.className = "bk";
-      const size = 20 + Math.random()*120;        // 有大有小
-      d.style.width = d.style.height = size+"px";
-      d.style.left = Math.random()*100+"%";
-      d.style.top = Math.random()*100+"%";
-      d.style.setProperty("--bx", (Math.random()*2-1)*60+"px");
-      d.style.setProperty("--by", (Math.random()*2-1)*60+"px");
-      const floatDur = 6 + Math.random()*8;
-      const glowDur = 3 + Math.random()*4;
-      d.style.animationDuration = floatDur+"s, "+glowDur+"s";
-      d.style.animationDelay = -(Math.random()*floatDur)+"s, "+(-(Math.random()*glowDur))+"s";
-      d.style.opacity = (0.25+Math.random()*0.5).toFixed(2);
+      d.className = "haze";
+      const w = 24 + Math.random()*34;            // 视宽百分比,团块大
+      const h = w * (0.6 + Math.random()*0.7);    // 不规则:宽高不等
+      d.style.width = w+"vw";
+      d.style.height = h+"vw";
+      d.style.left = (Math.random()*90-8)+"%";
+      d.style.top = (Math.random()*90-8)+"%";
+      d.style.setProperty("--hx", (Math.random()*2-1)*8+"vw");
+      d.style.setProperty("--hy", (Math.random()*2-1)*6+"vw");
+      const dur = 7 + Math.random()*6;
+      d.style.animationDuration = dur+"s";
+      d.style.animationDelay = -(Math.random()*dur)+"s";
       layer.appendChild(d);
     }
   }

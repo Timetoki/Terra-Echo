@@ -247,23 +247,43 @@ body{
 /* Blue_Gleam:垫在背景层(内容之下),1-4 顺序循环,透明度 50% */
 #global-gleam{position:fixed;inset:0;width:100%;height:100%;
   object-fit:cover;z-index:0;pointer-events:none;opacity:.5;}
-/* 圆形镜头辉光散景:CSS 光斑,screen 叠最上层 */
-.fx-bokeh-css{position:fixed;inset:0;z-index:9999;pointer-events:none;
+/* 镜头炫光:柔光晕染垫底 + 横向长方形光带扫过 + 左上角圆形光晕,screen 叠最上层 */
+.fx-flare{position:fixed;inset:0;z-index:9999;pointer-events:none;
   mix-blend-mode:screen;opacity:0;transition:opacity 1.4s ease;overflow:hidden;}
-#ending.bloomed .fx-bokeh-css{opacity:1;}
-.fx-bokeh-css .bk{position:absolute;border-radius:50%;
-  background:radial-gradient(circle at 38% 34%,
-    rgba(255,255,255,.9),rgba(210,230,255,.5) 42%,rgba(180,210,255,.12) 70%,transparent);
-  filter:blur(2px);
-  animation:bkFloat ease-in-out infinite,bkGlow ease-in-out infinite;}
-@keyframes bkFloat{
-  0%{transform:translate(0,0);}
-  50%{transform:translate(var(--bx),var(--by));}
-  100%{transform:translate(0,0);}
+#ending.bloomed .fx-flare{opacity:1;}
+/* 几团很虚的柔光晕染,JS 生成 6 团 */
+.fx-flare .haze{position:absolute;border-radius:50%;filter:blur(60px);
+  background:radial-gradient(circle at 42% 40%,
+    rgba(224,238,255,.55),rgba(180,210,255,.22) 55%,transparent 78%);
+  animation:hazeDrift ease-in-out infinite;}
+@keyframes hazeDrift{
+  0%,100%{transform:translate(0,0) scale(1);opacity:.35;}
+  50%{transform:translate(var(--hx),var(--hy)) scale(1.12);opacity:.7;}
 }
-@keyframes bkGlow{
-  0%,100%{opacity:.25;}
-  50%{opacity:.85;}
+/* 横向长方形光带:画面中部横扫一次 */
+.fx-flare-rect{position:absolute;top:46%;left:0;width:60%;height:20%;
+  transform:translateX(-120%) skewX(-8deg);
+  background:linear-gradient(90deg,transparent,
+    rgba(210,232,255,.16) 30%,rgba(255,255,255,.55) 50%,rgba(210,232,255,.16) 70%,transparent);
+  filter:blur(14px);opacity:0;}
+#ending.shifted .fx-flare-rect{animation:sweepRect 2.8s cubic-bezier(.25,.5,.3,1) .1s;}
+@keyframes sweepRect{
+  0%{transform:translateX(-120%) skewX(-8deg);opacity:0;}
+  18%{opacity:1;}
+  82%{opacity:1;}
+  100%{transform:translateX(240%) skewX(-8deg);opacity:0;}
+}
+/* 左上角圆形光晕:亮起一次 */
+.fx-flare-round{position:absolute;top:-8%;left:-6%;width:38vw;height:38vw;
+  border-radius:50%;filter:blur(30px);opacity:0;
+  background:radial-gradient(circle at 50% 50%,
+    rgba(255,255,255,.7),rgba(210,232,255,.32) 45%,transparent 70%);}
+#ending.shifted .fx-flare-round{animation:sweepRound 3s ease-in-out .2s;}
+@keyframes sweepRound{
+  0%{opacity:0;transform:scale(.7);}
+  30%{opacity:.9;transform:scale(1);}
+  60%{opacity:.5;transform:scale(1.08);}
+  100%{opacity:0;transform:scale(1.15);}
 }
 
 
@@ -574,9 +594,12 @@ body{
     </defs>
     <rect width="1440" height="860" fill="#000" mask="url(#eyeHole)"/>
   </svg>
-  <!-- Bokeh 视频:眨眼白光后出现,screen 最上层 -->
-  <!-- 圆形镜头辉光散景层(CSS,替代视频) -->
-  <div class="fx-bokeh-css"></div>
+  <!-- 镜头炫光层:眨眼白光后出现,screen 最上层 -->
+  <div class="fx-flare">
+    <div class="haze-wrap"></div>
+    <div class="fx-flare-rect"></div>
+    <div class="fx-flare-round"></div>
+  </div>
   <!-- 半透明信息浮层 -->
   <div class="end-info">
     <div class="op-eyebrow">你要找的人是</div>
