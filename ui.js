@@ -285,8 +285,8 @@ const UI = (() => {
     const layer = $("#reunion-scene");
     const bg = layer.querySelector(".rs-bg");
     if (curOp.file) bg.style.backgroundImage = `url("assets/portraits/${curOp.file}")`;
-    $("#ending").classList.remove("show");   // 收起结算页,避免其炫光层盖住重逢
-    layer.classList.add("show");
+    layer.classList.add("show");                 // 半透明遮盖当前结算页(不隐藏底层)
+    requestAnimationFrame(() => layer.classList.add("up"));   // 从下方拉起
     const speaker = layer.querySelector(".rs-speaker");
     const dlg = layer.querySelector(".rs-dialogue");
     const hint = layer.querySelector(".rs-hint");
@@ -313,7 +313,10 @@ const UI = (() => {
                      hint.classList.add("show"); return; }
       idx++;
       if (idx < lines.length) play();
-      else { layer.classList.remove("show"); $("#ending").classList.add("show"); }   // 剧情结束,回到结算
+      else {                                     // 剧情结束,滑下收起
+        layer.classList.remove("up");
+        setTimeout(() => layer.classList.remove("show"), 700);
+      }
     }
     layer.onclick = next;
     play();

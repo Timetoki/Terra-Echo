@@ -163,9 +163,31 @@ body{
 .choice.in{transform:translateY(0);opacity:1}
 
 /* ---- 结局显影(眼睑开合→睁眼白光绽开→彩色立绘→移左) ---- */
-#ending{position:fixed;inset:0;background:var(--bg-0);
+#ending{position:fixed;inset:0;background:#000;
   display:none;z-index:40;opacity:0;transition:opacity .8s ease;}
 #ending.show{display:block;opacity:1}
+
+/* 斜切黑白背景:折线 顶边中点→偏右凸折角(垂直中部)→底边中点,左白右黑 */
+.skew-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+.skew-white{position:absolute;inset:0;background:#f2efe9;
+  clip-path:polygon(0 0, 50% 0, 62% 50%, 50% 100%, 0 100%);}
+.skew-black{position:absolute;inset:0;background:#0a0e14;
+  clip-path:polygon(50% 0, 100% 0, 100% 100%, 50% 100%, 62% 50%);}
+/* 斜切边缘的细微高光线,增强科技切割感 */
+.skew-bg::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 49.6%,rgba(180,210,255,.35) 50%,transparent 50.4%);
+  mix-blend-mode:screen;opacity:.5;}
+/* 结算定格(shifted)后:立绘从右滑入、文字从左滑入 */
+#ending.shifted .skew-white{animation:skewInL 1.1s cubic-bezier(.2,.7,.2,1) forwards;}
+#ending.shifted .skew-black{animation:skewInR 1.1s cubic-bezier(.2,.7,.2,1) forwards;}
+@keyframes skewInL{from{transform:translateX(-6%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes skewInR{from{transform:translateX(6%);opacity:0}to{transform:translateX(0);opacity:1}}
+@media(max-width:760px){
+  /* 手机竖屏:改上白下黑的横向折线 */
+  .skew-white{clip-path:polygon(0 0, 100% 0, 100% 50%, 50% 62%, 0 50%);}
+  .skew-black{clip-path:polygon(0 50%, 50% 62%, 100% 50%, 100% 100%, 0 100%);}
+  .skew-bg::after{background:linear-gradient(205deg,transparent 49.6%,rgba(180,210,255,.35) 50%,transparent 50.4%);}
+}
 
 /* 显影舞台 */
 .reveal-stage{position:absolute;top:50%;left:50%;
@@ -174,8 +196,13 @@ body{
   transition:left 1.4s cubic-bezier(.5,0,.2,1),
              width 1.4s cubic-bezier(.5,0,.2,1),
              height 1.4s cubic-bezier(.5,0,.2,1);}
-#ending.shifted .reveal-stage{left:30%;
-  width:min(88vh,680px);height:min(120vh,920px);}
+#ending.shifted .reveal-stage{left:72%;
+  width:min(88vh,680px);height:min(120vh,920px);
+  animation:portraitInR 1.2s cubic-bezier(.2,.7,.2,1) both;}
+@keyframes portraitInR{
+  from{transform:translate(-50%,-50%) translateX(14%);opacity:0}
+  to{transform:translate(-50%,-50%) translateX(0);opacity:1}
+}
 @media(max-width:760px){
   /* 手机结算:立绘缩小上移到上半屏,下半屏留给文字和按钮 */
   .reveal-stage{width:104vw!important;height:104vw!important;
@@ -332,17 +359,17 @@ body{
 
 
 
-/* 半透明信息浮层:拉宽 */
-.end-info{position:absolute;top:52%;right:5%;left:auto;z-index:3;
-  transform:translateY(-50%) translateX(24px);
-  width:min(52vw,600px);max-height:92vh;overflow-y:auto;
+/* 信息浮层:左白区,从左滑入,深色宋体字(白底) */
+.end-info{position:absolute;top:50%;left:5%;right:auto;z-index:3;
+  transform:translateY(-50%) translateX(-24px);
+  width:min(44vw,540px);max-height:92vh;overflow-y:auto;
   padding:clamp(20px,2.6vw,38px);
-  background:linear-gradient(120deg,rgba(7,15,24,.66),rgba(7,15,24,.34));
-  backdrop-filter:blur(3px);border-radius:3px;
+  background:none;backdrop-filter:none;
+  font-family:"Noto Serif SC","Songti SC",serif;
   opacity:0;transition:opacity 1s ease,transform 1s ease;}
 #ending.shifted .end-info{opacity:1;transform:translateY(-50%) translateX(0);}
 @media(max-width:760px){
-  .end-info{top:auto;bottom:2.5vh;right:4%;left:4%;width:auto;max-height:none;
+  .end-info{top:auto;bottom:4vh;right:4%;left:4%;width:auto;max-height:none;
     padding:0 4vw;background:none;backdrop-filter:none;
     transform:translateX(0);text-align:center;}
   #ending.shifted .end-info{transform:translateX(0)}
@@ -357,39 +384,47 @@ body{
 
 
 
-.op-eyebrow{color:var(--warm);letter-spacing:.42em;font-size:.86rem;
-  font-family:"Noto Sans SC",sans-serif;margin-bottom:1em;}
-.op-name{font-size:clamp(3rem,7vw,5rem);letter-spacing:.16em;
-  color:var(--glow);line-height:1.1;
-  text-shadow:0 0 44px rgba(234,244,255,.42);}
-.op-goldline{width:72px;height:1px;margin:30px 0 32px;
-  background:linear-gradient(90deg,var(--warm),transparent);}
-.op-ending{font-size:clamp(1.04rem,2vw,1.24rem);line-height:2.15;color:var(--ink);}
+.op-eyebrow{color:#5a6472;letter-spacing:.42em;font-size:.9rem;
+  font-family:"Noto Serif SC","Songti SC",serif;margin-bottom:.6em;}
+.op-name{font-size:clamp(3.4rem,8vw,6rem);letter-spacing:.1em;
+  color:#141a22;line-height:1.05;font-weight:700;
+  font-family:"Noto Serif SC","Songti SC",serif;
+  text-shadow:0 2px 18px rgba(0,0,0,.12);}
+.op-goldline{width:72px;height:2px;margin:26px 0 30px;
+  background:linear-gradient(90deg,var(--warm-deep),transparent);}
+.op-ending{font-size:clamp(1.02rem,1.9vw,1.2rem);line-height:2.1;color:#2a3340;
+  font-family:"Noto Serif SC","Songti SC",serif;}
 .op-ending p{margin-bottom:1.1em;opacity:0;transform:translateY(8px);
   animation:lineIn .9s ease forwards;}
 @keyframes lineIn{to{opacity:1;transform:translateY(0)}}
 .end-actions{margin-top:2.8em;display:flex;gap:14px;flex-wrap:wrap;}
 #reunion,#replay{background:none;padding:14px 30px;letter-spacing:.2em;
-  font-family:"Noto Sans SC",sans-serif;cursor:pointer;border-radius:2px;
-  font-size:.86rem;transition:all .3s;}
-#reunion{border:1px solid var(--warm-deep);color:var(--warm);}
-#reunion:hover{background:rgba(232,201,143,.1);box-shadow:0 0 26px rgba(232,201,143,.14)}
-#replay{border:1px solid var(--line);color:var(--ink-dim);}
-#replay:hover{border-color:var(--ink-dim);color:var(--ink)}
+  font-family:"Noto Serif SC","Songti SC",serif;cursor:pointer;border-radius:2px;
+  font-size:.9rem;transition:all .3s;}
+#reunion{border:1px solid #b89968;color:#7a6236;}
+#reunion:hover{background:rgba(184,153,104,.12);box-shadow:0 0 26px rgba(184,153,104,.18)}
+#replay{border:1px solid #b3bac4;color:#5a6472;}
+#replay:hover{border-color:#5a6472;color:#141a22}
 @media(max-width:760px){.end-actions{justify-content:center}
   .op-goldline{margin-left:auto;margin-right:auto}}
 #reunion-scene{position:fixed;inset:0;z-index:50;display:none;
-  background:var(--bg-0);}
+  background:rgba(6,10,16,.82);backdrop-filter:blur(6px);
+  transform:translateY(100%);transition:transform .7s cubic-bezier(.2,.7,.2,1);}
 #reunion-scene.show{display:block}
+#reunion-scene.up{transform:translateY(0)}
+/* 顶部一道把手条,暗示可上拉 */
+#reunion-scene::before{content:"";position:absolute;left:50%;top:14px;
+  transform:translateX(-50%);width:46px;height:4px;border-radius:2px;
+  background:rgba(234,244,255,.4);z-index:2;}
 #reunion-scene .rs-bg{position:absolute;left:50%;top:0;
   transform:translateX(-50%);
   width:min(70vh,540px);height:82vh;
   background-repeat:no-repeat;background-size:contain;background-position:center top;
   opacity:1;filter:none;}
 #reunion-scene .rs-bg::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 55%,var(--bg-0));}
+  background:linear-gradient(180deg,transparent 55%,rgba(6,10,16,.6));}
 .rs-textbox{position:absolute;left:0;right:0;bottom:0;
-  background:linear-gradient(180deg,transparent,var(--panel) 24%);
+  background:linear-gradient(180deg,transparent,rgba(6,10,16,.55) 24%);
   padding:clamp(28px,6vh,68px) clamp(20px,7vw,120px) clamp(30px,5vh,54px);
   min-height:36vh;display:flex;flex-direction:column;justify-content:flex-end;}
 .rs-speaker{color:var(--warm);font-size:.86rem;letter-spacing:.28em;
@@ -697,6 +732,11 @@ body{
 
 <!-- 结局显影 -->
 <div id="ending">
+  <!-- 斜切黑白背景:左白右黑,折线顶点偏右凸在垂直中部 -->
+  <div class="skew-bg">
+    <div class="skew-white"></div>
+    <div class="skew-black"></div>
+  </div>
   <!-- 显影舞台:眼睑开合 → 睁眼白光绽开 → 彩色立绘 → 移左 -->
   <div class="reveal-stage">
     <img class="rv-sil" alt="">        <!-- 朦胧发光白剪影(只见头) -->
@@ -721,7 +761,7 @@ body{
   </div>
   <!-- 半透明信息浮层 -->
   <div class="end-info">
-    <div class="op-eyebrow">你要找的人是</div>
+    <div class="op-eyebrow">你找到了ta……</div>
     <div class="op-name"></div>
     <div class="op-goldline"></div>
     <div class="op-ending"></div>
