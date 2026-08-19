@@ -647,5 +647,25 @@ const PROSECTS = {
   ],
 };
 
+/* ------------------------------------------------------------
+ * 5. 普瑞塞斯跳脸彩蛋(专属题验证阶段触发)
+ * ---------------------------------------------------------- */
+const PRIESTESS = {
+  name: "普瑞塞斯",
+  portrait: "assets/portraits/Priestess.png",
+  brokenChance: 0.20,
+  lines: [
+    { weight: 0.50, text: "我相信我们的联系,会超越时间,还有空间。我找到你了。" },
+    { weight: 0.20, text: "就算海洋沸腾,重力也不复存在,卫星接连坠入重力的漩涡里,膨胀的太阳无情地吞噬掉他们的孩子。直至万籁俱寂的时候,我们也一样能再见。" },
+    { weight: 0.30, text: "我不准你,忘记我。" },
+  ],
+  confirmCount: 5,
+  confirmLabel: "好",
+  soloRejectLimit: 3,
+  rescuer: "可露希尔",
+  rescueLine: "等等……?",
+  closureLines: ["……", "……奇怪,prts 好像有 bug。"],
+};
+
 /* 导出到全局,供 engine.js 使用 */
-window.GAME_DATA = { DIMENSIONS, DIM_KEYS, STORY, OPERATORS, PROSECTS };
+window.GAME_DATA = { DIMENSIONS, DIM_KEYS, STORY, OPERATORS, PROSECTS, PRIESTESS };

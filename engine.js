@@ -121,19 +121,52 @@ function goTo(nodeKey) {
   });
 }
 
-/* ---- 结局结算:先判彩蛋,否则正常收敛 ---- */
+/* ---- 结局结算:先判 meta 彩蛋,否则进入专属题验证 ---- */
 function resolveEnding(node) {
   UI.renderNode({
     text: node.text,
     options: null,
     onContinue: () => {
       if (state.metaCount >= E_PROSECTS.threshold) {
-        UI.showPrologueMeta(E_PROSECTS);   // 普瑞塞斯:在所有 UI 之前
+        UI.showPrologueMeta(E_PROSECTS);
       } else {
-        const op = converge();
-        UI.showEnding(op);
+        startSoloVerify();
       }
     },
+  });
+}
+
+/* ---- 专属题验证:取候选 top-N,逐个抛专属题定人 ---- */
+function startSoloVerify() {
+  const { top } = liveCandidates(3);
+  state.soloQueue = top.slice();      // TODO: popularity 到位后按人气排序
+  state.soloIdx = 0;
+  state.soloRejects = 0;
+  askSolo();
+}
+
+function askSolo() {
+  const P = GD.PRIESTESS;
+  const op = state.soloQueue[state.soloIdx];
+  if (!op) { triggerPriestess(); return; }   // 队列耗尽
+  UI.showSoloQuestion(op, {
+    onAccept: () => UI.showEnding(op),
+    onReject: () => {
+      state.soloRejects += 1;
+      if (state.soloRejects >= P.soloRejectLimit) { triggerPriestess(); return; }
+      state.soloIdx += 1;
+      askSolo();
+    },
+  });
+}
+
+function triggerPriestess() {
+  const P = GD.PRIESTESS;
+  const rescuer = state.soloQueue.find(op => op.name === P.rescuer) || null;
+  UI.showPriestess(P, {
+    rescuer,
+    onRestart: () => location.reload(),
+    onClosure: (op) => UI.showEnding(op),
   });
 }
 

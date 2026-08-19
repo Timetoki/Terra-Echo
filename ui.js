@@ -344,6 +344,119 @@ const UI = (() => {
     }, 700 + cfg.lines.length * 1400);
   }
 
+  /* ---- 专属题验证:白色朦胧水泡剪影 + 中上选项 ---- */
+  function showSoloQuestion(op, cb) {
+    const layer = $("#solo-scene");
+    // 用白剪影(silhouettes 目录),水波气泡滤镜由 CSS 处理
+    layer.querySelector(".solo-sil").style.backgroundImage =
+      `url("assets/silhouettes/${op.file}")`;
+    layer.querySelector(".solo-text").textContent =
+      op.solo && op.solo.length ? op.solo
+        : "光里浮着一道朦胧的身影。你注视着，试图辨认——那是你要找的人吗？";
+    const yes = layer.querySelector(".solo-yes");
+    const no  = layer.querySelector(".solo-no");
+    const y2 = yes.cloneNode(true), n2 = no.cloneNode(true);
+    yes.replaceWith(y2); no.replaceWith(n2);
+    y2.onclick = () => { layer.classList.remove("show"); cb.onAccept(); };
+    n2.onclick = () => { layer.classList.remove("show"); cb.onReject(); };
+    layer.classList.add("show");
+  }
+
+  /* ---- 普瑞塞斯跳脸(可被可露希尔救场) ---- */
+  function pickWeighted(lines) {
+    let r = Math.random(), acc = 0;
+    for (const l of lines) { acc += l.weight; if (r <= acc) return l.text; }
+    return lines[lines.length - 1].text;
+  }
+  function typeInto(el, text, speed, done) {
+    el.textContent = ""; let i = 0;
+    const t = setInterval(() => {
+      if (i <= text.length) { el.textContent = text.slice(0, i); i++; }
+      else { clearInterval(t); done && done(); }
+    }, speed);
+  }
+  function blinkOut(el, done) {
+    let n = 0;
+    const t = setInterval(() => {
+      el.style.opacity = (n % 2 ? "1" : "0"); n++;
+      if (n >= 6) { clearInterval(t); el.style.opacity = "1"; done && done(); }
+    }, 120);
+  }
+
+  function showPriestess(P, cb) {
+    const layer = $("#priestess");
+    const img = layer.querySelector(".pr-portrait");
+    const dlg = layer.querySelector(".pr-dialogue");
+    const confirm = layer.querySelector(".pr-confirm");
+    dlg.textContent = ""; confirm.innerHTML = ""; confirm.classList.remove("show");
+    layer.classList.remove("broken", "glitchout", "rescued");
+    const old = layer.querySelector(".pr-blackout"); if (old) old.remove();
+    img.src = P.portrait;
+    layer.classList.add("show");                 // 直接闪现,无渐显
+
+    if (Math.random() < P.brokenChance) {        // 20% 先破碎 1s
+      layer.classList.add("broken");
+      setTimeout(() => layer.classList.remove("broken"), 1000);
+    }
+
+    const line = pickWeighted(P.lines);
+    setTimeout(() => typeInto(dlg, line, 42, () => {
+      if (cb.rescuer) runRescue();
+      else showConfirmButtons();
+    }), 700);
+
+    function showConfirmButtons() {
+      for (let i = 0; i < P.confirmCount; i++) {
+        const b = document.createElement("button");
+        b.textContent = P.confirmLabel;
+        b.onclick = endWithGlitch;
+        confirm.appendChild(b);
+      }
+      requestAnimationFrame(() => confirm.classList.add("show"));
+    }
+    function endWithGlitch() {
+      confirm.classList.remove("show");
+      layer.classList.add("glitchout");
+      const black = document.createElement("div");
+      black.className = "pr-blackout";
+      layer.appendChild(black);
+      setTimeout(() => black.classList.add("on"), 300);
+      setTimeout(() => cb.onRestart(), 300 + 2000);   // 黑屏 2s → reload
+    }
+
+    // 可露希尔救场
+    function runRescue() {
+      setTimeout(() => typeInto(dlg, P.rescueLine, 60, () => {
+        blinkOut(layer, () => {
+          layer.classList.add("rescued");
+          img.src = `assets/portraits/${cb.rescuer.file}`;
+          dlg.textContent = "";
+          let i = 0;
+          (function next() {
+            if (i >= P.closureLines.length) { showRescueSolo(); return; }
+            typeInto(dlg, P.closureLines[i++], 55, () => setTimeout(next, 700));
+          })();
+        });
+      }), 600);
+    }
+    function showRescueSolo() {
+      layer.classList.remove("show");
+      const l2 = $("#solo-scene");
+      l2.querySelector(".solo-sil").style.backgroundImage =
+        `url("assets/silhouettes/${cb.rescuer.file}")`;
+      l2.querySelector(".solo-text").textContent =
+        cb.rescuer.solo && cb.rescuer.solo.length ? cb.rescuer.solo
+          : "光里浮着一道朦胧的身影。是她吗？";
+      const yes = l2.querySelector(".solo-yes"), no = l2.querySelector(".solo-no");
+      const y2 = yes.cloneNode(true), n2 = no.cloneNode(true);
+      y2.textContent = "我找到你了"; n2.textContent = "我找到你了";  // 两个都是
+      yes.replaceWith(y2); no.replaceWith(n2);
+      const done = () => { l2.classList.remove("show"); cb.onClosure(cb.rescuer); };
+      y2.onclick = done; n2.onclick = done;
+      l2.classList.add("show");
+    }
+  }
+
   /* 全局点击/键盘推进 */
   document.addEventListener("click", (e) => {
     if (e.target.closest(".choice") || e.target.closest("button")) return;
@@ -354,7 +467,8 @@ const UI = (() => {
   });
 
   return { initScene, setBackground, setSilhouetteStage, renderNode,
-           showEnding, showPrologueMeta, startReunion };
+           showEnding, showPrologueMeta, showSoloQuestion, showPriestess,
+           startReunion };
 })();
 
 /* ---- 剪影 SVG:抽象人形(阶段2) ---- */
