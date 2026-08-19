@@ -163,7 +163,7 @@ body{
 .choice.in{transform:translateY(0);opacity:1}
 
 /* ---- 结局显影(眼睑开合→睁眼白光绽开→彩色立绘→移左) ---- */
-#ending{position:fixed;inset:0;background:rgba(0,0,0,.8);
+#ending{position:fixed;inset:0;background:var(--bg-0);
   display:none;z-index:40;opacity:0;transition:opacity .8s ease;}
 #ending.show{display:block;opacity:1}
 
@@ -243,10 +243,54 @@ body{
 #ending.bloomed .rv-real{opacity:1;transform:scale(1);
   transition:opacity 1.3s ease .85s,transform 1.5s cubic-bezier(.3,.7,.3,1) .85s;}
 
-/* ===== 视频特效层 ===== */
-/* Blue_Gleam:垫在背景层(内容之下),1-4 顺序循环,透明度 50% */
-#global-gleam{position:fixed;inset:0;width:100%;height:100%;
-  object-fit:cover;z-index:0;pointer-events:none;opacity:.5;}
+/* ===== 全局蓝色炫光背景层(纯 CSS,替代 Blue_Gleam 视频) ===== */
+/* 垫在所有内容之下(z0),全程循环:蓝色柔光呼吸 + 斜向光束扫动 + 光晕脉动 */
+#global-flare{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 40%,#0a1626 0%,#070f18 70%);}
+#global-flare > *{position:absolute;mix-blend-mode:screen;will-change:transform,opacity;}
+/* 几团蓝色柔光,缓慢呼吸漂移 */
+.gf-haze{inset:-20%;
+  background:
+    radial-gradient(38% 32% at 26% 30%,rgba(74,140,220,.34),transparent 70%),
+    radial-gradient(42% 36% at 74% 66%,rgba(60,120,200,.30),transparent 72%),
+    radial-gradient(30% 40% at 52% 82%,rgba(96,160,235,.22),transparent 70%);
+  filter:blur(40px);animation:gfBreathe 16s ease-in-out infinite;}
+@keyframes gfBreathe{
+  0%,100%{transform:translate3d(0,0,0) scale(1);opacity:.7;}
+  50%{transform:translate3d(2%,-2%,0) scale(1.08);opacity:1;}
+}
+/* 斜向光束,极慢横扫 */
+.gf-beam{top:-30%;width:44%;height:160%;filter:blur(46px);opacity:0;
+  background:linear-gradient(180deg,transparent,
+    rgba(120,180,255,.18) 30%,rgba(160,205,255,.42) 50%,rgba(120,180,255,.18) 70%,transparent);
+  transform:rotate(14deg);}
+.gf-beam-a{left:-30%;animation:gfSweepA 19s ease-in-out infinite;}
+.gf-beam-b{left:-10%;animation:gfSweepB 27s ease-in-out infinite;animation-delay:-9s;}
+@keyframes gfSweepA{
+  0%{transform:translateX(-20%) rotate(14deg);opacity:0;}
+  25%,60%{opacity:.9;}
+  100%{transform:translateX(220%) rotate(14deg);opacity:0;}
+}
+@keyframes gfSweepB{
+  0%{transform:translateX(-10%) rotate(-11deg);opacity:0;}
+  30%,65%{opacity:.7;}
+  100%{transform:translateX(180%) rotate(-11deg);opacity:0;}
+}
+/* 蓝色光晕,明暗脉动 */
+.gf-orb{border-radius:50%;filter:blur(50px);
+  background:radial-gradient(circle at 50% 50%,rgba(150,200,255,.5),rgba(80,140,220,.22) 45%,transparent 70%);}
+.gf-orb-a{top:-12%;left:-8%;width:42vw;height:42vw;animation:gfPulse 13s ease-in-out infinite;}
+.gf-orb-b{bottom:-16%;right:-10%;width:52vw;height:52vw;animation:gfPulse 17s ease-in-out infinite;animation-delay:-6s;}
+@keyframes gfPulse{
+  0%,100%{opacity:.28;transform:scale(1);}
+  50%{opacity:.6;transform:scale(1.12);}
+}
+@media(max-width:760px){
+  /* 手机端:降 blur、去一条光束,省性能 */
+  .gf-haze{filter:blur(28px);}
+  .gf-beam-b{display:none;}
+  .gf-orb{filter:blur(34px);}
+}
 /* 镜头炫光:柔光晕染垫底 + 横向长方形光带扫过 + 左上角圆形光晕,screen 叠最上层 */
 .fx-flare{position:fixed;inset:0;z-index:20;pointer-events:none;
   mix-blend-mode:screen;opacity:0;transition:opacity 1.4s ease;overflow:hidden;}
@@ -634,8 +678,14 @@ body{
   </div>
 </div>
 
-<!-- 全局 Blue_Gleam:1-4 顺序循环,screen 叠最上层,透明度 50% -->
-<video id="global-gleam" src="assets/fx/Blue_Gleam_1.mp4" muted autoplay playsinline></video>
+<!-- 全局蓝色炫光背景层(CSS,替代 Blue_Gleam 视频) -->
+<div id="global-flare" aria-hidden="true">
+  <div class="gf-haze"></div>
+  <div class="gf-beam gf-beam-a"></div>
+  <div class="gf-beam gf-beam-b"></div>
+  <div class="gf-orb gf-orb-a"></div>
+  <div class="gf-orb gf-orb-b"></div>
+</div>
 
 <script src="data.js"></script>
 <script src="ui.js"></script>
@@ -686,20 +736,6 @@ body{
     setInterval(()=>{ if(Math.random()<0.8) spawn(); }, 1300);
   })();
 
-  // Blue_Gleam 1-4 顺序循环:一个播完切下一个,到4再回1
-  (function(){
-    const g = document.getElementById("global-gleam");
-    let idx = 1;
-    const TOTAL = 4;
-    g.addEventListener("ended", () => {
-      idx = idx % TOTAL + 1;                 // 1→2→3→4→1
-      g.src = `assets/fx/Blue_Gleam_${idx}.mp4`;
-      g.play().catch(()=>{});
-    });
-    // 自动播放兜底:首次交互后确保播放
-    const kick = () => { g.play().catch(()=>{}); };
-    document.addEventListener("click", kick, { once:true });
-  })();
   document.getElementById("start-btn").addEventListener("click",()=>{
     document.getElementById("title-screen").classList.add("hide");
     setTimeout(()=>ENGINE.startGame(),700);
