@@ -167,48 +167,65 @@ body{
   display:none;z-index:40;opacity:0;transition:opacity .8s ease;}
 #ending.show{display:block;opacity:1}
 
-/* 斜切黑白背景:折线 顶边中点→偏右凸折角(垂直中部)→底边中点,左白右黑 */
-.skew-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
-.skew-white{position:absolute;inset:0;background:#f2efe9;
-  clip-path:polygon(0 0, 50% 0, 62% 50%, 50% 100%, 0 100%);}
-.skew-black{position:absolute;inset:0;background:#0a0e14;
-  clip-path:polygon(50% 0, 100% 0, 100% 100%, 50% 100%, 62% 50%);}
-/* 斜切边缘的细微高光线,增强科技切割感 */
-.skew-bg::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(115deg,transparent 49.6%,rgba(180,210,255,.35) 50%,transparent 50.4%);
-  mix-blend-mode:screen;opacity:.5;}
-/* 结算定格(shifted)后:立绘从右滑入、文字从左滑入 */
-#ending.shifted .skew-white{animation:skewInL 1.1s cubic-bezier(.2,.7,.2,1) forwards;}
-#ending.shifted .skew-black{animation:skewInR 1.1s cubic-bezier(.2,.7,.2,1) forwards;}
-@keyframes skewInL{from{transform:translateX(-6%);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes skewInR{from{transform:translateX(6%);opacity:0}to{transform:translateX(0);opacity:1}}
-@media(max-width:760px){
-  /* 手机竖屏:改上白下黑的横向折线 */
-  .skew-white{clip-path:polygon(0 0, 100% 0, 100% 50%, 50% 62%, 0 50%);}
-  .skew-black{clip-path:polygon(0 50%, 50% 62%, 100% 50%, 100% 100%, 0 100%);}
-  .skew-bg::after{background:linear-gradient(205deg,transparent 49.6%,rgba(180,210,255,.35) 50%,transparent 50.4%);}
-}
+/* 斜切黑白:三折线 左→右→左(顶边偏右起,先向左切,再向右凸,再向左落到底) */
+.skew-bg{position:absolute;inset:0;z-index:0;overflow:hidden;opacity:0;
+  transition:opacity .55s ease;}
+#ending.shifted .skew-bg{opacity:1;}
+.skew-white,.skew-black{position:absolute;inset:0;}
+.skew-white{
+  background:
+    repeating-linear-gradient(0deg,transparent 0 47px,rgba(0,0,0,.035) 47px 48px),
+    repeating-linear-gradient(90deg,transparent 0 47px,rgba(0,0,0,.035) 47px 48px),
+    #efefef;
+  clip-path:polygon(0 0, 56% 0, 38% 28%, 68% 56%, 42% 100%, 0 100%);
+  transform:translateX(-18%);
+  transition:transform 1.05s cubic-bezier(.16,.82,.28,1);}
+.skew-black{
+  background:
+    radial-gradient(ellipse 70% 50% at 70% 40%,rgba(40,48,58,.55),transparent 70%),
+    repeating-linear-gradient(135deg,transparent 0 18px,rgba(255,255,255,.018) 18px 19px),
+    #111214;
+  clip-path:polygon(56% 0, 100% 0, 100% 100%, 42% 100%, 68% 56%, 38% 28%);
+  transform:translateX(18%);
+  transition:transform 1.05s cubic-bezier(.16,.82,.28,1);}
+#ending.shifted .skew-white,#ending.shifted .skew-black{transform:none;}
+.skew-cut{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;
+  overflow:visible;}
+.skew-cut polyline{fill:none;stroke:#fff;stroke-width:1.5;vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 4px rgba(220,235,255,.9));}
+.sw-deco{position:absolute;inset:0;pointer-events:none;}
+.sw-marks{position:absolute;top:18px;left:22px;display:flex;gap:18px;
+  font-family:ui-monospace,Consolas,monospace;font-size:10px;letter-spacing:.28em;
+  color:#9aa3ad;}
+.sw-circuit{position:absolute;left:18px;top:48px;width:min(38vw,420px);height:2px;
+  background:linear-gradient(90deg,#1a1a1a,transparent);
+  box-shadow:0 0 0 1px rgba(0,0,0,.06);}
+.sw-circuit::before,.sw-circuit::after{content:"";position:absolute;width:7px;height:7px;
+  border:1px solid #1a1a1a;border-radius:50%;top:-3px;background:#efefef;}
+.sw-circuit::before{left:0;} .sw-circuit::after{left:42%;}
+.sb-meta{position:absolute;top:22px;right:28px;text-align:right;color:#c8cdd3;
+  font-family:ui-monospace,Consolas,monospace;opacity:0;
+  transform:translateX(24px);transition:opacity .7s .35s,transform .7s .35s;}
+#ending.shifted .sb-meta{opacity:1;transform:none;}
+.sb-data-no{font-size:11px;letter-spacing:.22em;}
+.sb-data-no b{font-size:13px;font-weight:700;color:#fff;margin-left:.4em;}
+.sb-barcode{margin-top:8px;margin-left:auto;width:132px;height:28px;
+  background:repeating-linear-gradient(90deg,
+    #e8e8e8 0 2px,transparent 2px 4px,#e8e8e8 4px 5px,transparent 5px 8px,
+    #e8e8e8 8px 11px,transparent 11px 13px,#e8e8e8 13px 14px,transparent 14px 16px);}
 
-/* 显影舞台 */
+/* 显影舞台:绽开后立绘滑向右侧,压过折线 */
 .reveal-stage{position:absolute;top:50%;left:50%;
   width:min(150vh,1100px);height:min(150vh,1100px);
-  transform:translate(-50%,-50%);
-  transition:left 1.4s cubic-bezier(.5,0,.2,1),
-             width 1.4s cubic-bezier(.5,0,.2,1),
-             height 1.4s cubic-bezier(.5,0,.2,1);}
+  transform:translate(-50%,-50%);z-index:4;
+  transition:left 1.15s cubic-bezier(.16,.82,.28,1),
+             width 1.15s cubic-bezier(.16,.82,.28,1),
+             height 1.15s cubic-bezier(.16,.82,.28,1);}
 #ending.shifted .reveal-stage{left:72%;
-  width:min(88vh,680px);height:min(120vh,920px);
-  animation:portraitInR 1.2s cubic-bezier(.2,.7,.2,1) both;}
-@keyframes portraitInR{
-  from{transform:translate(-50%,-50%) translateX(14%);opacity:0}
-  to{transform:translate(-50%,-50%) translateX(0);opacity:1}
-}
+  width:min(92vh,720px);height:min(128vh,980px);}
 @media(max-width:760px){
-  /* 手机结算:立绘缩小上移到上半屏,下半屏留给文字和按钮 */
-  .reveal-stage{width:104vw!important;height:104vw!important;
-    top:34%!important;left:50%!important;}
-  #ending.shifted .reveal-stage{width:88vw!important;height:88vw!important;
-    top:26%!important;left:50%!important;}
+  .reveal-stage{width:130vw;height:130vw;top:48%;}
+  #ending.shifted .reveal-stage{left:78%;width:118vw;height:118vw;top:52%;}
 }
 
 /* 朦胧发光白剪影:眨眼时露头,缩小(不要太大) */
@@ -265,7 +282,7 @@ body{
 
 /* 彩色立绘:绽开后浮现 */
 .rv-real{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:contain;object-position:center;
+  object-fit:contain;object-position:center bottom;
   opacity:0;transform:scale(1.1);}
 #ending.bloomed .rv-real{opacity:1;transform:scale(1);
   transition:opacity 1.3s ease .85s,transform 1.5s cubic-bezier(.3,.7,.3,1) .85s;}
@@ -359,74 +376,71 @@ body{
 
 
 
-/* 信息浮层:左白区,从左滑入,深色宋体字(白底) */
-.end-info{position:absolute;top:50%;left:5%;right:auto;z-index:3;
-  transform:translateY(-50%) translateX(-24px);
-  width:min(44vw,540px);max-height:92vh;overflow-y:auto;
-  padding:clamp(20px,2.6vw,38px);
-  background:none;backdrop-filter:none;
-  font-family:"Noto Serif SC","Songti SC",serif;
-  opacity:0;transition:opacity 1s ease,transform 1s ease;}
-#ending.shifted .end-info{opacity:1;transform:translateY(-50%) translateX(0);}
-@media(max-width:760px){
-  .end-info{top:auto;bottom:4vh;right:4%;left:4%;width:auto;max-height:none;
-    padding:0 4vw;background:none;backdrop-filter:none;
-    transform:translateX(0);text-align:center;}
-  #ending.shifted .end-info{transform:translateX(0)}
-  /* 手机端压紧字号行距,保证按钮进屏 */
-  .end-info .op-eyebrow{margin-bottom:.5em;font-size:.78rem;}
-  .end-info .op-name{font-size:clamp(2.4rem,10vw,3.2rem);}
-  .end-info .op-goldline{margin:16px auto 16px;}
-  .end-info .op-ending{font-size:.94rem;line-height:1.75;}
-  .end-info .op-ending p{margin-bottom:.6em;}
-  .end-info .end-actions{margin-top:1.4em;}
-}
+/* 左白区科技信息:从左滑入。重逢正文不放这里,留给底部拉起层 */
+.end-info{position:absolute;top:0;bottom:72px;left:0;z-index:5;
+  width:min(48vw,560px);padding:72px 4vw 24px 4.5vw;
+  display:flex;flex-direction:column;justify-content:space-between;
+  font-family:"Noto Sans SC","Segoe UI",sans-serif;
+  opacity:0;transform:translateX(-48px);
+  transition:opacity 1s cubic-bezier(.16,.82,.28,1) .15s,
+             transform 1.05s cubic-bezier(.16,.82,.28,1) .15s;}
+#ending.shifted .end-info{opacity:1;transform:none;}
+.op-kicker{font-family:ui-monospace,Consolas,monospace;
+  font-size:clamp(.72rem,1.4vw,.9rem);letter-spacing:.28em;color:#1a1a1a;font-weight:700;}
+.op-ask{margin-top:8vh;}
+.op-ask-l,.op-ask-r{display:block;font-size:clamp(.92rem,1.8vw,1.12rem);
+  letter-spacing:.18em;color:#4a525c;}
+.op-name{font-size:clamp(3.2rem,7.2vw,6.4rem);letter-spacing:.08em;
+  color:#111;line-height:.95;font-weight:800;margin:.18em 0 .12em;
+  font-family:"Noto Sans SC","Segoe UI",sans-serif;}
+.id-card{border:1px solid #1c1c1c;background:rgba(255,255,255,.55);
+  padding:14px 16px 16px;max-width:340px;
+  display:grid;grid-template-columns:44px 1fr;gap:8px 14px;align-items:center;}
+.id-mark{grid-row:1 / span 5;width:44px;height:44px;border:1px solid #111;
+  background:conic-gradient(from 45deg,#111 0 25%,transparent 0 50%,#111 0 75%,transparent 0);
+  box-shadow:inset 0 0 0 10px #efefef;}
+.id-title{grid-column:2;font-family:ui-monospace,Consolas,monospace;
+  font-size:10px;letter-spacing:.32em;color:#111;font-weight:700;}
+.id-row{grid-column:2;display:flex;justify-content:space-between;gap:12px;
+  font-family:ui-monospace,Consolas,monospace;font-size:11px;letter-spacing:.12em;
+  border-top:1px solid rgba(0,0,0,.12);padding-top:6px;color:#6a727c;}
+.id-row b{color:#111;font-weight:700;letter-spacing:.08em;}
+#replay{grid-column:2;justify-self:start;margin-top:4px;background:none;
+  border:1px solid #111;color:#111;padding:8px 14px;letter-spacing:.2em;
+  font-family:ui-monospace,Consolas,monospace;font-size:10px;cursor:pointer;}
+#replay:hover{background:#111;color:#fff;}
 
+.pull-bar{position:absolute;left:0;right:0;bottom:0;z-index:8;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;cursor:pointer;user-select:none;
+  background:linear-gradient(180deg,transparent,rgba(8,8,10,.82));
+  color:#c5ccd4;font-family:ui-monospace,Consolas,monospace;
+  opacity:0;transform:translateY(16px);
+  transition:opacity .6s .4s,transform .6s .4s;}
+#ending.shifted .pull-bar{opacity:1;transform:none;}
+.pull-bar .pb-side{font-size:9px;letter-spacing:.28em;opacity:.55;}
+.pull-bar .pb-mid{display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-size:11px;letter-spacing:.32em;}
+.pull-bar .pb-mid i{display:block;width:42px;height:3px;border-radius:2px;
+  background:rgba(234,244,255,.55);}
+.pull-bar .pb-mid span{opacity:.9;}
 
-
-.op-eyebrow{color:#5a6472;letter-spacing:.42em;font-size:.9rem;
-  font-family:"Noto Serif SC","Songti SC",serif;margin-bottom:.6em;}
-.op-name{font-size:clamp(3.4rem,8vw,6rem);letter-spacing:.1em;
-  color:#141a22;line-height:1.05;font-weight:700;
-  font-family:"Noto Serif SC","Songti SC",serif;
-  text-shadow:0 2px 18px rgba(0,0,0,.12);}
-.op-goldline{width:72px;height:2px;margin:26px 0 30px;
-  background:linear-gradient(90deg,var(--warm-deep),transparent);}
-.op-ending{font-size:clamp(1.02rem,1.9vw,1.2rem);line-height:2.1;color:#2a3340;
-  font-family:"Noto Serif SC","Songti SC",serif;}
-.op-ending p{margin-bottom:1.1em;opacity:0;transform:translateY(8px);
-  animation:lineIn .9s ease forwards;}
-@keyframes lineIn{to{opacity:1;transform:translateY(0)}}
-.end-actions{margin-top:2.8em;display:flex;gap:14px;flex-wrap:wrap;}
-#reunion,#replay{background:none;padding:14px 30px;letter-spacing:.2em;
-  font-family:"Noto Serif SC","Songti SC",serif;cursor:pointer;border-radius:2px;
-  font-size:.9rem;transition:all .3s;}
-#reunion{border:1px solid #b89968;color:#7a6236;}
-#reunion:hover{background:rgba(184,153,104,.12);box-shadow:0 0 26px rgba(184,153,104,.18)}
-#replay{border:1px solid #b3bac4;color:#5a6472;}
-#replay:hover{border-color:#5a6472;color:#141a22}
-@media(max-width:760px){.end-actions{justify-content:center}
-  .op-goldline{margin-left:auto;margin-right:auto}}
 #reunion-scene{position:fixed;inset:0;z-index:50;display:none;
-  background:rgba(6,10,16,.82);backdrop-filter:blur(6px);
+  background:rgba(8,10,14,.62);backdrop-filter:blur(10px);
   transform:translateY(100%);transition:transform .7s cubic-bezier(.2,.7,.2,1);}
 #reunion-scene.show{display:block}
 #reunion-scene.up{transform:translateY(0)}
-/* 顶部一道把手条,暗示可上拉 */
 #reunion-scene::before{content:"";position:absolute;left:50%;top:14px;
   transform:translateX(-50%);width:46px;height:4px;border-radius:2px;
-  background:rgba(234,244,255,.4);z-index:2;}
-#reunion-scene .rs-bg{position:absolute;left:50%;top:0;
-  transform:translateX(-50%);
-  width:min(70vh,540px);height:82vh;
-  background-repeat:no-repeat;background-size:contain;background-position:center top;
-  opacity:1;filter:none;}
-#reunion-scene .rs-bg::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 55%,rgba(6,10,16,.6));}
-.rs-textbox{position:absolute;left:0;right:0;bottom:0;
-  background:linear-gradient(180deg,transparent,rgba(6,10,16,.55) 24%);
-  padding:clamp(28px,6vh,68px) clamp(20px,7vw,120px) clamp(30px,5vh,54px);
-  min-height:36vh;display:flex;flex-direction:column;justify-content:flex-end;}
+  background:rgba(234,244,255,.45);z-index:2;}
+#reunion-scene .rs-bg{position:absolute;inset:0;
+  background-repeat:no-repeat;background-size:contain;background-position:center 18%;
+  opacity:.16;filter:grayscale(.2);}
+.rs-textbox{position:absolute;left:8vw;right:8vw;bottom:8vh;
+  background:rgba(10,14,20,.55);border:1px solid rgba(220,230,245,.16);
+  padding:clamp(22px,4vh,40px) clamp(20px,4vw,48px);
+  min-height:28vh;display:flex;flex-direction:column;justify-content:flex-end;
+  backdrop-filter:blur(8px);}
 .rs-speaker{color:var(--warm);font-size:.86rem;letter-spacing:.28em;
   margin-bottom:.7em;min-height:1.1em;font-family:"Noto Sans SC",sans-serif;}
 .rs-dialogue{font-size:clamp(1.02rem,2.2vw,1.34rem);line-height:2;max-width:52em;
@@ -436,8 +450,12 @@ body{
 .rs-hint.show{opacity:.7}
 
 @media(max-width:760px){
-  /* 结算页锁死不可滚动/不可拖,内容用绝对定位铺满一屏 */
   #ending{overflow:hidden;}
+  .end-info{width:58vw;padding:56px 4vw 80px 4vw;justify-content:flex-start;gap:7vh;}
+  .op-ask{margin-top:4vh;}
+  .op-name{font-size:clamp(2.2rem,11vw,3.4rem);}
+  .id-card{max-width:100%;}
+  .pull-bar .pb-side{display:none;}
 }
 
 /* ---- 普瑞塞斯 meta 前置层(在所有 UI 之前) ---- */
@@ -732,18 +750,29 @@ body{
 
 <!-- 结局显影 -->
 <div id="ending">
-  <!-- 斜切黑白背景:左白右黑,折线顶点偏右凸在垂直中部 -->
   <div class="skew-bg">
-    <div class="skew-white"></div>
-    <div class="skew-black"></div>
+    <div class="skew-white">
+      <div class="sw-deco">
+        <div class="sw-marks"><span>01</span><span>02</span><span>03</span><span>04</span></div>
+        <div class="sw-circuit"></div>
+      </div>
+    </div>
+    <div class="skew-black">
+      <div class="sb-meta">
+        <div class="sb-data-no">DATA NO.<b id="op-data-no">#0000</b></div>
+        <div class="sb-barcode" aria-hidden="true"></div>
+      </div>
+    </div>
+    <svg class="skew-cut" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <polyline points="56,0 38,28 68,56 42,100"/>
+    </svg>
   </div>
-  <!-- 显影舞台:眼睑开合 → 睁眼白光绽开 → 彩色立绘 → 移左 -->
+  <!-- 显影舞台:眼睑开合 → 睁眼白光绽开 → 彩色立绘 → 滑向右侧 -->
   <div class="reveal-stage">
-    <img class="rv-sil" alt="">        <!-- 朦胧发光白剪影(只见头) -->
-    <img class="rv-real" alt="">       <!-- 彩色立绘 -->
-    <div class="rv-bloom"></div>       <!-- 白光绽开 -->
+    <img class="rv-sil" alt="">
+    <img class="rv-real" alt="">
+    <div class="rv-bloom"></div>
   </div>
-  <!-- 眼睛形状蒙版(SVG):黑色遮罩挖出杏仁形眼孔,开合眨眼 -->
   <svg class="eye-mask" viewBox="0 0 1440 860" preserveAspectRatio="xMidYMid slice">
     <defs>
       <mask id="eyeHole">
@@ -753,25 +782,37 @@ body{
     </defs>
     <rect width="1440" height="860" fill="#000" mask="url(#eyeHole)"/>
   </svg>
-  <!-- 镜头炫光层:眨眼白光后出现,screen 最上层 -->
   <div class="fx-flare">
     <div class="haze-wrap"></div>
     <div class="fx-flare-rect"></div>
     <div class="fx-flare-round"></div>
   </div>
-  <!-- 半透明信息浮层 -->
   <div class="end-info">
-    <div class="op-eyebrow">你找到了ta……</div>
-    <div class="op-name"></div>
-    <div class="op-goldline"></div>
-    <div class="op-ending"></div>
-    <div class="end-actions">
-      <button id="reunion">走近那个人</button>
-      <button id="replay">再寻找一次</button>
+    <div class="op-kicker">测试结束 // TEST TERMINATED</div>
+    <div class="op-ask">
+      <span class="op-ask-l">你要找的人是</span>
+      <div class="op-name"></div>
+      <span class="op-ask-r">吗？</span>
+    </div>
+    <div class="id-card">
+      <div class="id-mark" aria-hidden="true"></div>
+      <div class="id-title">IDENTITY CONFIRMED</div>
+      <div class="id-row"><span>NAME</span><b class="id-name"></b></div>
+      <div class="id-row"><span>CODENAME</span><b class="id-code"></b></div>
+      <div class="id-row"><span>CLASS</span><b class="id-tier"></b></div>
+      <button id="replay">REPLAY</button>
     </div>
   </div>
+  <div class="pull-bar" id="pull-bar">
+    <span class="pb-side">SYSTEM LOG</span>
+    <div class="pb-mid">
+      <i></i>
+      <span>// 点击或上拉 查看重逢 · TAP / PULL</span>
+    </div>
+    <span class="pb-side">CONFIDENTIAL</span>
+  </div>
 </div>
-<!-- 重逢剧情覆盖层(点"走近那个人"后拉起) -->
+<!-- 重逢剧情覆盖层(点击/上拉后从下方升起,半透明盖住结算页) -->
 <div id="reunion-scene">
   <div class="rs-bg"></div>
   <div class="rs-textbox">
@@ -866,7 +907,7 @@ body{
   });
   document.getElementById("replay").addEventListener("click",()=>location.reload());
   document.getElementById("replay-meta").addEventListener("click",()=>location.reload());
-  document.getElementById("reunion").addEventListener("click",()=>UI.startReunion());
+  document.getElementById("pull-bar").addEventListener("click",()=>UI.startReunion());
 </script>
 </body>
 </html>

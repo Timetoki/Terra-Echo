@@ -217,36 +217,30 @@ const UI = (() => {
   }
   function clearChoices() { choicesEl.innerHTML = ""; }
 
-  /* ---- 结局显影:三横切片居中进入 → 清晰 → 移左出信息 ---- */
+  /* ---- 结局显影:眨眼 → 白光绽开 → 斜切科技页滑入 ---- */
   let curOp = null;
   function showEnding(op) {
     curOp = op;
     const box = $("#ending");
 
-    // 装载白剪影 + 彩色立绘
     if (op && op.file) {
       box.querySelector(".rv-sil").src = `assets/silhouettes/${op.file}`;
       box.querySelector(".rv-real").src = `assets/portraits/${op.file}`;
     }
 
-    // 文字
-    box.querySelector(".op-name").textContent = op ? op.name : "???";
-    const endWrap = box.querySelector(".op-ending");
-    endWrap.innerHTML = "";
-    const lines = op ? op.ending : ["……光散去了,却没有人。也许那个人,一直是你自己。"];
-    lines.forEach((t, i) => {
-      const p = document.createElement("p");
-      p.textContent = t;
-      p.style.animationDelay = (0.4 + i * 0.9) + "s";
-      endWrap.appendChild(p);
-    });
-    const reBtn = $("#reunion");
-    reBtn.style.display = (op && op.reunion && op.reunion.length) ? "" : "none";
+    const name = op ? op.name : "???";
+    box.querySelector(".op-name").textContent = name;
+    const idName = box.querySelector(".id-name");
+    const idCode = box.querySelector(".id-code");
+    const idTier = box.querySelector(".id-tier");
+    if (idName) idName.textContent = name;
+    if (idCode) idCode.textContent = (op && op.code ? op.code : "UNKNOWN").toUpperCase();
+    if (idTier) idTier.textContent = op && op.tier === "core" ? "CORE" : "DAILY";
+    const noEl = $("#op-data-no");
+    if (noEl) noEl.textContent = "#" + dataNo(op);
 
-    // 生成镜头炫光的底层柔光晕染
     buildHaze(box.querySelector(".haze-wrap"));
 
-    // 序列:眼睛开合眨眼(2.8s) → 睁眼白光绽开 → 立绘+散景 → 移左+信息
     box.classList.remove("blink", "bloomed", "shifted");
     box.classList.add("show");
     requestAnimationFrame(() => {
@@ -254,6 +248,20 @@ const UI = (() => {
       setTimeout(() => box.classList.add("bloomed"), 2800);
       setTimeout(() => box.classList.add("shifted"), 5000);
     });
+  }
+
+  function dataNo(op) {
+    const s = (op && (op.code || op.name)) || "NULL";
+    let n = 0;
+    for (let i = 0; i < s.length; i++) n = (n * 33 + s.charCodeAt(i)) >>> 0;
+    return (n % 9000 + 1000).toString().padStart(4, "0");
+  }
+
+  function reunionLines(op) {
+    if (op && op.reunion && op.reunion.length) return op.reunion.slice();
+    if (op && op.ending && op.ending.length) return op.ending.slice();
+    if (op && op.solo) return [op.solo];
+    return ["……光散去了。你们终于站在了彼此面前。"];
   }
 
   // 生成几团模糊晕染的白色柔光垫底(不规则、大小不一、缓慢漂移)
@@ -279,19 +287,20 @@ const UI = (() => {
     }
   }
 
-  /* ---- 重逢剧情:点"走近那个人"后拉起 ---- */
+  /* ---- 重逢剧情:点击底栏或上拉后升起半透明层 ---- */
   function startReunion() {
-    if (!curOp || !curOp.reunion) return;
+    if (!$("#ending").classList.contains("shifted")) return;
     const layer = $("#reunion-scene");
+    if (layer.classList.contains("show")) return;
     const bg = layer.querySelector(".rs-bg");
-    if (curOp.file) bg.style.backgroundImage = `url("assets/portraits/${curOp.file}")`;
-    layer.classList.add("show");                 // 半透明遮盖当前结算页(不隐藏底层)
-    requestAnimationFrame(() => layer.classList.add("up"));   // 从下方拉起
+    if (curOp && curOp.file) bg.style.backgroundImage = `url("assets/portraits/${curOp.file}")`;
+    layer.classList.add("show");
+    requestAnimationFrame(() => layer.classList.add("up"));
     const speaker = layer.querySelector(".rs-speaker");
     const dlg = layer.querySelector(".rs-dialogue");
     const hint = layer.querySelector(".rs-hint");
     let idx = 0;
-    const lines = curOp.reunion;
+    const lines = reunionLines(curOp);
     let rTyping = false, rTimer = null, rFull = "";
     function play() {
       const line = lines[idx];
@@ -450,9 +459,25 @@ const UI = (() => {
     }
   }
 
+  /* 底栏上拉手势 */
+  (function bindPull() {
+    const bar = $("#pull-bar");
+    if (!bar) return;
+    let y0 = null;
+    bar.addEventListener("pointerdown", (e) => { y0 = e.clientY; });
+    bar.addEventListener("pointerup", (e) => {
+      if (y0 == null) return;
+      const dy = y0 - e.clientY;
+      y0 = null;
+      if (dy >= 28) startReunion();
+    });
+  })();
+
   /* 全局点击/键盘推进 */
   document.addEventListener("click", (e) => {
     if (e.target.closest(".choice") || e.target.closest("button")) return;
+    if (e.target.closest("#ending") || e.target.closest("#reunion-scene")) return;
+    if (e.target.closest(".pull-bar")) return;
     advance();
   });
   document.addEventListener("keydown", (e) => {
