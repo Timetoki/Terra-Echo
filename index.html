@@ -425,49 +425,9 @@ body{
 .meta-name{color:#eaf4ff;font-size:2rem;letter-spacing:.3em;
   margin:1.4em 0;text-shadow:0 0 30px rgba(120,220,255,.5);}
 
-/* ===== 专属题验证层:白色朦胧水泡剪影 + 中上选项 ===== */
-#solo-scene{position:fixed;inset:0;z-index:55;display:none;
-  background:var(--bg-0);overflow:hidden;}
-#solo-scene.show{display:block;}
-/* 立绘:白剪影 + 水波滤镜 + 气泡朦胧(复刻阶段3那种虚幻白光) */
-.solo-sil-wrap{position:absolute;left:50%;bottom:-14vh;transform:translateX(-50%);
-  width:min(96vh,720px);height:108vh;pointer-events:none;}
-.solo-sil{position:absolute;inset:0;
-  background-repeat:no-repeat;background-position:bottom center;background-size:contain;
-  filter:url(#ripple) blur(9px) drop-shadow(0 0 30px rgba(234,244,255,.55));
-  opacity:0;transition:opacity 1.2s ease;
-  animation:soloFloat 9s ease-in-out infinite;}
-#solo-scene.show .solo-sil{opacity:.9;}
-/* 外层再叠一团柔光,强化水泡感 */
-.solo-sil-wrap::after{content:"";position:absolute;left:50%;top:38%;
-  width:70%;height:56%;transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse at center,rgba(234,244,255,.4),transparent 62%);
-  filter:blur(34px);pointer-events:none;}
-@keyframes soloFloat{
-  0%,100%{transform:translateX(-50%) scale(1) translateY(0);}
-  50%{transform:translateX(-50%) scale(1.03) translateY(-1.5vh);}
-}
-/* 选项:中间偏上,复用 .choice 样式 */
-.solo-choices{position:absolute;left:0;right:0;top:16vh;
-  display:flex;flex-direction:column;gap:14px;align-items:center;
-  padding:0 clamp(20px,7vw,120px);z-index:6;}
-.solo-text{width:min(46em,100%);text-align:center;color:#eaf4ff;
-  font-size:clamp(1rem,2vw,1.24rem);line-height:1.95;margin-bottom:1.4em;
-  text-shadow:0 0 24px rgba(150,190,255,.5);}
-.solo-choices .choice{width:min(30em,100%);text-align:center;opacity:1;
-  transform:none;}
-.solo-yes{border-color:var(--warm-deep);color:var(--warm);}
-.solo-yes:hover{background:rgba(232,201,143,.12);border-color:var(--warm);}
-@media(max-width:760px){
-  .solo-sil-wrap{width:120vw;height:auto;bottom:-6vh;top:auto;}
-  .solo-sil{height:70vh;position:relative;}
-  .solo-choices{top:8vh;}
-  .solo-text{font-size:1rem;}
-}
-
 /* ===== 普瑞塞斯跳脸层(在所有 UI 之前) ===== */
 #priestess{position:fixed;inset:0;z-index:9999;display:none;
-  background:#000;overflow:hidden;pointer-events:none;}
+  background:transparent;overflow:hidden;pointer-events:none;}
 #priestess.show{display:block;pointer-events:auto;}
 .pr-portrait{position:absolute;left:50%;top:0;
   transform:translateX(-50%) scale(1.9);transform-origin:center top;
@@ -503,23 +463,30 @@ body{
   background:linear-gradient(180deg,transparent,rgba(180,220,255,.14),transparent);
   animation:prBar 2.4s linear infinite;}
 @keyframes prBar{0%{top:-10%}100%{top:110%}}
-.pr-dialogue{position:absolute;z-index:6;right:4vw;top:16vh;
-  width:min(42vw,560px);color:#fff;font-size:clamp(1.1rem,2.4vw,1.6rem);
+.pr-dialogue{position:absolute;z-index:8;left:50%;top:44%;
+  transform:translateX(-50%);text-align:center;
+  width:min(46em,86vw);color:#fff;font-size:clamp(1.1rem,2.4vw,1.5rem);
   line-height:1.9;letter-spacing:.06em;
   text-shadow:0 0 18px rgba(150,180,255,.5),2px 0 0 rgba(255,0,80,.3),-2px 0 0 rgba(0,220,255,.3);
-  font-family:"Noto Sans SC",sans-serif;}
-@media(max-width:760px){.pr-dialogue{right:auto;left:5vw;top:auto;bottom:22vh;
-  width:90vw;font-size:1.14rem;}}
-.pr-confirm{position:absolute;z-index:7;left:50%;bottom:6vh;
-  transform:translateX(-50%);display:flex;gap:14px;flex-wrap:wrap;
-  justify-content:center;max-width:92vw;opacity:0;transition:opacity .5s;}
+  font-family:"Noto Sans SC",sans-serif;
+  opacity:0;transition:opacity 1.2s ease;}
+.pr-dialogue.show{opacity:1;}
+@media(max-width:760px){.pr-dialogue{top:44%;width:88vw;font-size:1.14rem;}}
+/* 5 个红"好":竖排,屏幕中央,复用普通选项 .choice 格式,只是红色,缓缓渐现 */
+.pr-confirm{position:absolute;z-index:7;left:0;right:0;top:50%;
+  transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:12px;align-items:center;
+  padding:0 clamp(20px,7vw,120px);opacity:0;transition:opacity 1s ease;}
 .pr-confirm.show{opacity:1;}
-.pr-confirm button{background:rgba(140,0,30,.85);border:1px solid #ff2b4d;
-  color:#fff;padding:14px 40px;font-size:1.1rem;letter-spacing:.4em;
-  font-family:"Noto Sans SC",sans-serif;cursor:pointer;border-radius:2px;
-  text-shadow:0 0 10px rgba(255,60,90,.8);box-shadow:0 0 22px rgba(255,20,60,.4);
-  transition:all .2s;}
-.pr-confirm button:hover{background:rgba(200,0,40,.95);box-shadow:0 0 34px rgba(255,20,60,.7);}
+.pr-confirm button{pointer-events:auto;width:min(52em,100%);text-align:center;
+  background:rgba(120,0,26,.72);border:1px solid #ff2b4d;color:#fff;
+  padding:16px 22px;font-size:clamp(.94rem,1.9vw,1.08rem);
+  font-family:"Noto Sans SC",sans-serif;line-height:1.6;cursor:pointer;border-radius:2px;
+  letter-spacing:.4em;text-shadow:0 0 10px rgba(255,60,90,.7);
+  box-shadow:0 0 20px rgba(255,20,60,.3);backdrop-filter:blur(3px);
+  transition:background .25s,box-shadow .25s,transform .3s;}
+.pr-confirm button:hover{background:rgba(180,0,38,.9);
+  box-shadow:0 0 32px rgba(255,20,60,.6);transform:translateX(4px);}
 #priestess.glitchout .pr-glitch{animation-duration:.08s;opacity:1;}
 #priestess.glitchout .pr-portrait{animation:prShatter .06s steps(1) infinite;}
 .pr-blackout{position:absolute;inset:0;z-index:20;background:#000;
@@ -786,19 +753,7 @@ body{
   </div>
 </div>
 
-<!-- 专属题验证层(白色朦胧水泡剪影 + 中上选项) -->
-<div id="solo-scene">
-  <div class="solo-sil-wrap">
-    <div class="solo-sil"></div>
-  </div>
-  <div class="solo-choices">
-    <div class="solo-text"></div>
-    <button class="solo-yes choice">我找到你了</button>
-    <button class="solo-no choice">似乎不是你</button>
-  </div>
-</div>
-
-<!-- 普瑞塞斯跳脸层(在所有 UI 之前) -->
+<!-- 普瑞塞斯跳脸层(叠在所有 UI 最前,层透明保留原界面) -->
 <div id="priestess">
   <img class="pr-portrait" alt="">
   <div class="pr-glitch"></div>

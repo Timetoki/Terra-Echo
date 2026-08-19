@@ -344,24 +344,6 @@ const UI = (() => {
     }, 700 + cfg.lines.length * 1400);
   }
 
-  /* ---- 专属题验证:白色朦胧水泡剪影 + 中上选项 ---- */
-  function showSoloQuestion(op, cb) {
-    const layer = $("#solo-scene");
-    // 用白剪影(silhouettes 目录),水波气泡滤镜由 CSS 处理
-    layer.querySelector(".solo-sil").style.backgroundImage =
-      `url("assets/silhouettes/${op.file}")`;
-    layer.querySelector(".solo-text").textContent =
-      op.solo && op.solo.length ? op.solo
-        : "光里浮着一道朦胧的身影。你注视着，试图辨认——那是你要找的人吗？";
-    const yes = layer.querySelector(".solo-yes");
-    const no  = layer.querySelector(".solo-no");
-    const y2 = yes.cloneNode(true), n2 = no.cloneNode(true);
-    yes.replaceWith(y2); no.replaceWith(n2);
-    y2.onclick = () => { layer.classList.remove("show"); cb.onAccept(); };
-    n2.onclick = () => { layer.classList.remove("show"); cb.onReject(); };
-    layer.classList.add("show");
-  }
-
   /* ---- 普瑞塞斯跳脸(可被可露希尔救场) ---- */
   function pickWeighted(lines) {
     let r = Math.random(), acc = 0;
@@ -388,22 +370,30 @@ const UI = (() => {
     const img = layer.querySelector(".pr-portrait");
     const dlg = layer.querySelector(".pr-dialogue");
     const confirm = layer.querySelector(".pr-confirm");
-    dlg.textContent = ""; confirm.innerHTML = ""; confirm.classList.remove("show");
+    dlg.textContent = ""; dlg.classList.remove("show");
+    confirm.innerHTML = ""; confirm.classList.remove("show");
     layer.classList.remove("broken", "glitchout", "rescued");
     const old = layer.querySelector(".pr-blackout"); if (old) old.remove();
     img.src = P.portrait;
-    layer.classList.add("show");                 // 直接闪现,无渐显
+    layer.classList.add("show");                 // 立绘直接刷现,叠在所有 UI 最前(层透明,原界面保留)
 
     if (Math.random() < P.brokenChance) {        // 20% 先破碎 1s
       layer.classList.add("broken");
       setTimeout(() => layer.classList.remove("broken"), 1000);
     }
 
+    if (cb.rescuer) { runRescue(); return; }
+
+    // 时序:刷现 → 等 2s → 中央缓缓渐现台词 → 停 2s 看清 → 台词消失,渐现竖排红"好"
     const line = pickWeighted(P.lines);
-    setTimeout(() => typeInto(dlg, line, 42, () => {
-      if (cb.rescuer) runRescue();
-      else showConfirmButtons();
-    }), 700);
+    setTimeout(() => {
+      dlg.textContent = line;
+      dlg.classList.add("show");                 // 缓缓刷出
+      setTimeout(() => {
+        dlg.classList.remove("show");            // 台词消失
+        setTimeout(showConfirmButtons, 600);     // 淡出后出按钮
+      }, 2000);                                  // 停 2s 看清
+    }, 2000);
 
     function showConfirmButtons() {
       for (let i = 0; i < P.confirmCount; i++) {
@@ -412,7 +402,7 @@ const UI = (() => {
         b.onclick = endWithGlitch;
         confirm.appendChild(b);
       }
-      requestAnimationFrame(() => confirm.classList.add("show"));
+      requestAnimationFrame(() => confirm.classList.add("show"));  // 缓缓渐现
     }
     function endWithGlitch() {
       confirm.classList.remove("show");
@@ -424,36 +414,36 @@ const UI = (() => {
       setTimeout(() => cb.onRestart(), 300 + 2000);   // 黑屏 2s → reload
     }
 
-    // 可露希尔救场
+    // 可露希尔救场:等 2s → 普瑞塞斯"等等…?" → 闪烁消失 → 可露希尔接管台词 → 交回专属题
     function runRescue() {
-      setTimeout(() => typeInto(dlg, P.rescueLine, 60, () => {
-        blinkOut(layer, () => {
-          layer.classList.add("rescued");
-          img.src = `assets/portraits/${cb.rescuer.file}`;
-          dlg.textContent = "";
-          let i = 0;
-          (function next() {
-            if (i >= P.closureLines.length) { showRescueSolo(); return; }
-            typeInto(dlg, P.closureLines[i++], 55, () => setTimeout(next, 700));
-          })();
-        });
-      }), 600);
-    }
-    function showRescueSolo() {
-      layer.classList.remove("show");
-      const l2 = $("#solo-scene");
-      l2.querySelector(".solo-sil").style.backgroundImage =
-        `url("assets/silhouettes/${cb.rescuer.file}")`;
-      l2.querySelector(".solo-text").textContent =
-        cb.rescuer.solo && cb.rescuer.solo.length ? cb.rescuer.solo
-          : "光里浮着一道朦胧的身影。是她吗？";
-      const yes = l2.querySelector(".solo-yes"), no = l2.querySelector(".solo-no");
-      const y2 = yes.cloneNode(true), n2 = no.cloneNode(true);
-      y2.textContent = "我找到你了"; n2.textContent = "我找到你了";  // 两个都是
-      yes.replaceWith(y2); no.replaceWith(n2);
-      const done = () => { l2.classList.remove("show"); cb.onClosure(cb.rescuer); };
-      y2.onclick = done; n2.onclick = done;
-      l2.classList.add("show");
+      const line = pickWeighted(P.lines);
+      setTimeout(() => {
+        dlg.textContent = line; dlg.classList.add("show");
+        setTimeout(() => {
+          dlg.classList.remove("show");
+          setTimeout(() => {
+            dlg.textContent = P.rescueLine; dlg.classList.add("show");   // "等等…?"
+            setTimeout(() => blinkOut(layer, () => {
+              layer.classList.add("rescued");
+              img.src = `assets/portraits/${cb.rescuer.file}`;
+              dlg.classList.remove("show");
+              let i = 0;
+              (function next() {
+                if (i >= P.closureLines.length) {
+                  // 收起普瑞塞斯层,交回普通 UI 出可露希尔专属题(两选项都是"我找到你了")
+                  layer.classList.remove("show");
+                  cb.onRescueSolo(cb.rescuer);
+                  return;
+                }
+                dlg.textContent = P.closureLines[i++];
+                dlg.classList.add("show");
+                setTimeout(() => { dlg.classList.remove("show");
+                  setTimeout(next, 500); }, 1600);
+              })();
+            }), 1400);
+          }, 700);
+        }, 1800);
+      }, 2000);
     }
   }
 
@@ -467,7 +457,7 @@ const UI = (() => {
   });
 
   return { initScene, setBackground, setSilhouetteStage, renderNode,
-           showEnding, showPrologueMeta, showSoloQuestion, showPriestess,
+           showEnding, showPrologueMeta, showPriestess,
            startReunion };
 })();
 

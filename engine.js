@@ -149,9 +149,21 @@ function askSolo() {
   const P = GD.PRIESTESS;
   const op = state.soloQueue[state.soloIdx];
   if (!op) { triggerPriestess(); return; }   // 队列耗尽
-  UI.showSoloQuestion(op, {
-    onAccept: () => UI.showEnding(op),
-    onReject: () => {
+
+  // 背景:只剩确认这一个人的剪影(单候选 → 不轮播,静止)
+  UI.setSilhouetteStage(3, { candidates: [op] });
+
+  // 用普通题 UI(对话框 + 选项)弹专属题
+  const soloText = op.solo && op.solo.length ? op.solo
+    : "光里浮着一道朦胧的身影。你注视着，试图辨认——那是你要找的人吗？";
+  UI.renderNode({
+    text: soloText,
+    options: [
+      { label: "我找到你了", __accept: true },
+      { label: "似乎不是你", __accept: false },
+    ],
+    onChoose: (opt) => {
+      if (opt.__accept) { UI.showEnding(op); return; }
       state.soloRejects += 1;
       if (state.soloRejects >= P.soloRejectLimit) { triggerPriestess(); return; }
       state.soloIdx += 1;
@@ -166,7 +178,17 @@ function triggerPriestess() {
   UI.showPriestess(P, {
     rescuer,
     onRestart: () => location.reload(),
-    onClosure: (op) => UI.showEnding(op),
+    onRescueSolo: (op) => {
+      // 可露希尔接管:普通题 UI 出专属题,单剪影背景,两选项都是"我找到你了"
+      UI.setSilhouetteStage(3, { candidates: [op] });
+      const t = op.solo && op.solo.length ? op.solo
+        : "光里浮着一道朦胧的身影。是她吗？";
+      UI.renderNode({
+        text: t,
+        options: [{ label: "我找到你了" }, { label: "我找到你了" }],
+        onChoose: () => UI.showEnding(op),
+      });
+    },
   });
 }
 
