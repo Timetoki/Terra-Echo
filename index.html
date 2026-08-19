@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>回响 · 泰拉</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
@@ -177,11 +177,11 @@ body{
 #ending.shifted .reveal-stage{left:30%;
   width:min(88vh,680px);height:min(120vh,920px);}
 @media(max-width:760px){
-  /* 手机结算:立绘用 vw 适配竖屏,居中偏上;文字在下方 */
-  .reveal-stage{width:96vw!important;height:96vw!important;
-    top:38%!important;left:50%!important;}
-  #ending.shifted .reveal-stage{width:96vw!important;height:96vw!important;
-    top:32%!important;left:50%!important;}
+  /* 手机结算:立绘缩小上移到上半屏,下半屏留给文字和按钮 */
+  .reveal-stage{width:104vw!important;height:104vw!important;
+    top:34%!important;left:50%!important;}
+  #ending.shifted .reveal-stage{width:88vw!important;height:88vw!important;
+    top:26%!important;left:50%!important;}
 }
 
 /* 朦胧发光白剪影:眨眼时露头,缩小(不要太大) */
@@ -342,9 +342,17 @@ body{
   opacity:0;transition:opacity 1s ease,transform 1s ease;}
 #ending.shifted .end-info{opacity:1;transform:translateY(-50%) translateX(0);}
 @media(max-width:760px){
-  .end-info{top:auto;bottom:3vh;right:4%;left:4%;width:auto;max-height:46vh;
+  .end-info{top:auto;bottom:2.5vh;right:4%;left:4%;width:auto;max-height:none;
+    padding:0 4vw;background:none;backdrop-filter:none;
     transform:translateX(0);text-align:center;}
   #ending.shifted .end-info{transform:translateX(0)}
+  /* 手机端压紧字号行距,保证按钮进屏 */
+  .end-info .op-eyebrow{margin-bottom:.5em;font-size:.78rem;}
+  .end-info .op-name{font-size:clamp(2.4rem,10vw,3.2rem);}
+  .end-info .op-goldline{margin:16px auto 16px;}
+  .end-info .op-ending{font-size:.94rem;line-height:1.75;}
+  .end-info .op-ending p{margin-bottom:.6em;}
+  .end-info .end-actions{margin-top:1.4em;}
 }
 
 
@@ -393,11 +401,8 @@ body{
 .rs-hint.show{opacity:.7}
 
 @media(max-width:760px){
-  #ending{flex-direction:column;gap:20px;overflow-y:auto;}
-  .end-portrait{width:min(70vw,320px);height:48vh}
-  .end-info{text-align:center}
-  .op-goldline{margin-left:auto;margin-right:auto}
-  .end-actions{justify-content:center}
+  /* 结算页锁死不可滚动/不可拖,内容用绝对定位铺满一屏 */
+  #ending{overflow:hidden;}
 }
 
 /* ---- 普瑞塞斯 meta 前置层(在所有 UI 之前) ---- */
