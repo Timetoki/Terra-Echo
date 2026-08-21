@@ -297,7 +297,8 @@ const UI = (() => {
   function buildHaze(layer){
     if (!layer) return;
     layer.innerHTML = "";
-    const N = 6;
+    const mobile = window.matchMedia("(max-width:760px)").matches;
+    const N = mobile ? 3 : 6;
     for (let i=0;i<N;i++){
       const d = document.createElement("div");
       d.className = "haze";

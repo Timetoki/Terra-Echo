@@ -522,9 +522,10 @@ body{
   margin-bottom:22px;text-align:center;}
 .cp-members{display:flex;flex-direction:column;gap:18px;}
 .cp-member{display:flex;align-items:center;gap:16px;}
-.cp-avatar{flex:0 0 56px;width:56px;height:56px;border-radius:50%;
+.cp-avatar{flex:0 0 56px;width:56px;height:56px;border-radius:6px;overflow:hidden;
   background:radial-gradient(circle at 50% 40%,rgba(120,160,220,.25),rgba(40,50,64,.6));
   border:1px solid rgba(200,210,225,.3);}
+.cp-avatar img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
 .cp-info{display:flex;flex-direction:column;gap:3px;}
 .cp-role{font-size:.78rem;letter-spacing:.2em;color:#8b93a0;}
 .cp-name{font-size:1.15rem;color:#eef2f8;letter-spacing:.1em;}
@@ -605,6 +606,16 @@ body{
   .pull-bar .pb-mid i{animation:none;opacity:.85;transform:none;}
   /* 白底立绘手机端:更大、离正常立绘更远 */
   .rv-back{transform:translateX(11%) scale(1.2);}
+
+  /* ===== 手机端结算页/白光炸开降级(不影响闪光灰尘fdust、标题水泡) ===== */
+  /* 白光绽开去掉 feTurbulence 水波滤镜(手机最耗),保留绽放+涟漪环 */
+  .rv-bloom{filter:none;}
+  /* 柔光团大幅降 blur */
+  .fx-flare .haze{filter:blur(30px);}
+  /* 结算页内实时背景模糊改静态半透明,省 GPU */
+  .id-card{backdrop-filter:none;background:rgba(10,14,20,.86);}
+  #global-panel,#credit-panel{backdrop-filter:none;background:rgba(6,9,14,.86);}
+  .gp-box,.cp-box{backdrop-filter:none;}
 }
 
 /* ---- 普瑞塞斯 meta 前置层(在所有 UI 之前) ---- */
@@ -994,12 +1005,12 @@ body{
     <div class="cp-title">制作组</div>
     <div class="cp-members">
       <div class="cp-member">
-        <div class="cp-avatar" aria-hidden="true"></div>
-        <div class="cp-info"><span class="cp-role">制作人</span><b class="cp-name">时</b></div>
+        <div class="cp-avatar"><img src="assets/Producers/time.jpg" alt="" onerror="this.style.display='none'"></div>
+        <div class="cp-info"><span class="cp-role">制作人</span><b class="cp-name">Time / 时</b></div>
       </div>
       <div class="cp-member">
-        <div class="cp-avatar" aria-hidden="true"></div>
-        <div class="cp-info"><span class="cp-role">技术指导</span><b class="cp-name">朔</b></div>
+        <div class="cp-avatar"><img src="assets/Producers/saku.jpg" alt="" onerror="this.style.display='none'"></div>
+        <div class="cp-info"><span class="cp-role">技术指导</span><b class="cp-name">Horikita_saku</b></div>
       </div>
     </div>
   </div>
