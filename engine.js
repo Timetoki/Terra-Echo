@@ -158,6 +158,7 @@ function askSolo() {
     : "光里浮着一道朦胧的身影。你注视着，试图辨认——那是你要找的人吗？";
   UI.renderNode({
     text: soloText,
+    solo: true,
     options: [
       { text: "我找到你了", __accept: true },
       { text: "似乎不是你", __accept: false },
@@ -185,6 +186,7 @@ function triggerPriestess() {
         : "光里浮着一道朦胧的身影。是她吗？";
       UI.renderNode({
         text: t,
+        solo: true,
         options: [{ text: "我找到你了" }, { text: "我找到你了" }],
         onChoose: () => UI.showEnding(op),
       });

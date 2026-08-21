@@ -144,7 +144,7 @@ body{
 #continue-hint.show{opacity:.7}
 
 /* ---- 选项卡 ---- */
-#choices{position:absolute;left:0;right:0;bottom:calc(34vh + 12px);
+#choices{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
   display:flex;flex-direction:column;gap:12px;align-items:center;
   padding:0 clamp(20px,7vw,120px);pointer-events:none;}
 .choice{
@@ -376,6 +376,17 @@ body{
   0%,100%{transform:translate(0,0) scale(1);opacity:.35;}
   50%{transform:translate(var(--hx),var(--hy)) scale(1.12);opacity:.7;}
 }
+/* 飘浮发光尘埃:缓慢上升+左右漂移+轻微明灭 */
+.fx-flare .fdust{position:absolute;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(210,232,255,.5) 50%,transparent 75%);
+  box-shadow:0 0 6px rgba(224,238,255,.7);
+  animation:fdustFloat linear infinite;will-change:transform,opacity;}
+@keyframes fdustFloat{
+  0%{transform:translate(0,0);opacity:0;}
+  12%{opacity:var(--fo,.8);}
+  88%{opacity:var(--fo,.8);}
+  100%{transform:translate(var(--fdx,0),var(--fdy,-40vh));opacity:0;}
+}
 /* 横向长方形光带:画面中部横扫一次 */
 .fx-flare-rect{position:absolute;top:46%;left:0;width:60%;height:20%;
   transform:translateX(-120%) skewX(-8deg);
@@ -473,16 +484,17 @@ body{
   border:1px solid rgba(200,210,225,.28);
   box-shadow:0 24px 80px rgba(0,0,0,.6);}
 .gp-head{position:relative;display:flex;align-items:center;gap:12px;
-  padding:20px 22px 8px;flex-wrap:wrap;}
+  padding:38px 22px 8px;flex-wrap:wrap;}
 .gp-title{font-size:1.32rem;font-weight:700;letter-spacing:.14em;color:#eef2f8;
   text-shadow:0 0 20px rgba(120,160,220,.4);}
 .gp-credit{margin-left:auto;background:none;border:1px solid rgba(233,201,143,.6);
   color:#e9c98f;font-family:inherit;font-size:11px;letter-spacing:.1em;
   padding:5px 10px;cursor:pointer;white-space:nowrap;}
 .gp-credit:hover{background:rgba(233,201,143,.16);}
-.gp-close,.cp-close{position:absolute;top:12px;right:14px;background:none;border:none;
+.cp-close{position:absolute;top:12px;right:14px;background:none;border:none;
   color:#aeb6c2;font-size:24px;line-height:1;cursor:pointer;padding:2px 6px;}
-.gp-close{position:static;margin-left:4px;}
+.gp-close{position:absolute;top:8px;left:20px;background:none;border:none;
+  color:#aeb6c2;font-size:24px;line-height:1;cursor:pointer;padding:2px 6px;z-index:2;}
 .gp-close:hover,.cp-close:hover{color:#fff;}
 .gp-sub{padding:0 22px 12px;font-size:.8rem;letter-spacing:.2em;color:#8b93a0;
   border-bottom:1px solid rgba(255,255,255,.08);}
@@ -925,6 +937,7 @@ body{
   </svg>
   <div class="fx-flare">
     <div class="haze-wrap"></div>
+    <div class="dust-wrap"></div>
     <div class="fx-flare-rect"></div>
     <div class="fx-flare-round"></div>
   </div>
@@ -966,11 +979,11 @@ body{
 <div id="global-panel">
   <div class="gp-box">
     <div class="gp-head">
-      <div class="gp-title">实时数据反馈</div>
-      <button class="gp-credit" id="open-credit">请联系可露希尔制作组！</button>
       <button class="gp-close" id="close-global" aria-label="关闭">×</button>
+      <div class="gp-title">Prts实时数据</div>
+      <button class="gp-credit" id="open-credit">请联系可露希尔制作组！</button>
     </div>
-    <div class="gp-sub">被寻找次数 · 前十</div>
+    <div class="gp-sub">被寻找次数（显示top10）</div>
     <ol class="gp-list" id="gp-list"></ol>
   </div>
 </div>
@@ -978,7 +991,7 @@ body{
 <div id="credit-panel">
   <div class="cp-box">
     <button class="cp-close" id="close-credit" aria-label="关闭">×</button>
-    <div class="cp-title">可露希尔制作组</div>
+    <div class="cp-title">制作组</div>
     <div class="cp-members">
       <div class="cp-member">
         <div class="cp-avatar" aria-hidden="true"></div>

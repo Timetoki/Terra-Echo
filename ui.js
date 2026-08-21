@@ -121,8 +121,9 @@ const UI = (() => {
   }
 
   /* ---- 渲染一个节点 ---- */
-  function renderNode({ text, options, onContinue, onChoose }) {
+  function renderNode({ text, options, onContinue, onChoose, solo }) {
     clearChoices();
+    choicesEl.classList.toggle("centered", !!solo);
     hintEl.classList.remove("show");
     speakerEl.textContent = "";
     const lines = Array.isArray(text) ? text.slice() : [text];
@@ -246,6 +247,7 @@ const UI = (() => {
     if (op && op.code) bumpTally(op.code);
 
     buildHaze(box.querySelector(".haze-wrap"));
+    buildDust(box.querySelector(".dust-wrap"));
 
     box.classList.remove("blink", "bloomed", "shifted");
     box.classList.add("show");
@@ -271,6 +273,27 @@ const UI = (() => {
   }
 
   // 生成几团模糊晕染的白色柔光垫底(不规则、大小不一、缓慢漂移)
+  function buildDust(layer){
+    if (!layer) return;
+    layer.innerHTML = "";
+    const N = 44;
+    for (let i=0;i<N;i++){
+      const d = document.createElement("div");
+      d.className = "fdust";
+      const s = 1.5 + Math.random()*3.5;
+      d.style.width = s+"px";
+      d.style.height = s+"px";
+      d.style.left = (Math.random()*100)+"%";
+      d.style.top = (60+Math.random()*45)+"%";
+      d.style.setProperty("--fdx", (Math.random()*2-1)*12+"vw");
+      d.style.setProperty("--fdy", -(30+Math.random()*55)+"vh");
+      d.style.setProperty("--fo", (0.5+Math.random()*0.5).toFixed(2));
+      const dur = 9 + Math.random()*10;
+      d.style.animationDuration = dur+"s";
+      d.style.animationDelay = -(Math.random()*dur)+"s";
+      layer.appendChild(d);
+    }
+  }
   function buildHaze(layer){
     if (!layer) return;
     layer.innerHTML = "";
