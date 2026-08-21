@@ -299,14 +299,21 @@ body{
 #ending.bloomed .rv-real{opacity:1;transform:scale(1);
   transition:opacity 1.3s ease .85s,transform 1.5s cubic-bezier(.3,.7,.3,1) .85s;}
 
-/* 白底立绘:纯白人形剪影,垫在彩色立绘正后方偏右、略大,做描白衬底 */
+/* 白底立绘:纯白人形,100%不透明,垫在彩色立绘侧后方偏右、略大;外沿辉光流动呼吸 */
 .rv-back{position:absolute;inset:0;width:100%;height:100%;
   object-fit:contain;object-position:center 78%;z-index:1;
-  opacity:0;transform:translateX(1%) scale(1.04);
-  filter:drop-shadow(0 0 16px rgba(255,255,255,.55));}
-#ending.bloomed .rv-back{opacity:.5;
+  opacity:0;transform:translateX(8%) scale(1.16);
+  filter:drop-shadow(0 0 18px rgba(190,220,255,.7));}
+#ending.bloomed .rv-back{opacity:1;
+  animation:backGlow 4.5s ease-in-out infinite;
   transition:opacity 1.4s ease .95s;}
-#ending.shifted .rv-back{opacity:.45;}
+#ending.shifted .rv-back{opacity:1;}
+@keyframes backGlow{
+  0%,100%{filter:drop-shadow(0 0 14px rgba(190,220,255,.55))
+                 drop-shadow(0 0 30px rgba(150,190,255,.28));}
+  50%{filter:drop-shadow(0 0 26px rgba(224,238,255,.85))
+             drop-shadow(0 0 54px rgba(170,205,255,.5));}
+}
 
 /* ===== 全局蓝色炫光背景层(纯 CSS,替代 Blue_Gleam 视频) ===== */
 /* 垫在所有内容之下(z0),全程循环:蓝色柔光呼吸 + 斜向光束扫动 + 光晕脉动 */
@@ -409,17 +416,23 @@ body{
   font-size:clamp(.72rem,1.4vw,.9rem);letter-spacing:.28em;color:#1a1a1a;font-weight:700;
   text-shadow:0 0 12px rgba(255,255,255,.8);}
 
-/* 右黑区浮层:问句(白字)靠右上,身份卡靠右下 */
-.end-right{position:absolute;top:0;bottom:84px;right:0;z-index:5;
-  width:min(34vw,440px);padding:74px 3.4vw 24px 2vw;
-  display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;
-  text-align:right;
+/* 右黑区:问句(白字)独立钉右上 */
+.op-ask{position:absolute;top:74px;right:3.4vw;z-index:5;
+  text-align:right;max-width:min(40vw,520px);
+  font-family:"Noto Serif SC","Songti SC","SimSun","Noto Serif CJK SC",serif;
+  opacity:0;transform:translateX(48px);
+  transition:opacity 1s cubic-bezier(.16,.82,.28,1) .3s,
+             transform 1.05s cubic-bezier(.16,.82,.28,1) .3s;}
+#ending.shifted .op-ask{opacity:1;transform:none;}
+/* 身份卡浮层靠右下 */
+.end-right{position:absolute;bottom:96px;right:0;z-index:5;
+  width:min(34vw,440px);padding:0 3.4vw 0 2vw;
+  display:flex;flex-direction:column;align-items:flex-end;
   font-family:"Noto Serif SC","Songti SC","SimSun","Noto Serif CJK SC",serif;
   opacity:0;transform:translateX(48px);
   transition:opacity 1s cubic-bezier(.16,.82,.28,1) .3s,
              transform 1.05s cubic-bezier(.16,.82,.28,1) .3s;}
 #ending.shifted .end-right{opacity:1;transform:none;}
-.op-ask{align-self:flex-end;}
 .op-ask-l,.op-ask-r{display:block;font-size:clamp(.92rem,1.8vw,1.12rem);
   letter-spacing:.18em;color:#e8edf3;text-shadow:0 1px 12px rgba(0,0,0,.6);}
 .op-name{font-size:clamp(3rem,6.6vw,5.8rem);letter-spacing:.08em;
@@ -496,11 +509,28 @@ body{
 
 @media(max-width:760px){
   #ending{overflow:hidden;}
-  .end-info{width:58vw;padding:56px 4vw 80px 4vw;justify-content:flex-start;gap:7vh;}
-  .op-ask{margin-top:4vh;}
-  .op-name{font-size:clamp(2.2rem,11vw,3.4rem);}
-  .id-card{max-width:100%;}
+  .end-info{width:auto;padding:44px 5vw 0 5vw;}
+  /* 右侧浮层在手机改为底部全宽,靠左对齐 */
+  .end-right{top:auto;bottom:96px;right:auto;left:0;
+    width:100%;padding:0 5vw;align-items:flex-start;text-align:left;}
+  /* 问句单独提到顶部偏右、放大 */
+  .op-ask{position:absolute;top:88px;right:4vw;left:auto;
+    text-align:right;z-index:6;max-width:92vw;}
+  .op-ask-l,.op-ask-r{font-size:clamp(.92rem,4.2vw,1.1rem);}
+  .op-name{font-size:clamp(2.3rem,11.5vw,3.4rem);letter-spacing:.02em;
+    white-space:nowrap;margin:.06em 0;
+    text-shadow:0 2px 20px rgba(0,0,0,.85),0 0 40px rgba(120,160,220,.4);}
+  .id-card{max-width:none;width:100%;margin-top:12px;
+    background:rgba(10,14,20,.78);}
   .pull-bar .pb-side{display:none;}
+  /* 单独手机适配:关闭整块 opacity 明灭(闪烁),文字常亮,只保留底部辉光呼吸 */
+  #ending.shifted .pull-bar{animation:pullGlowM 1.6s ease-in-out infinite;opacity:1;}
+  @keyframes pullGlowM{
+    0%,100%{box-shadow:0 -8px 22px rgba(255,196,120,.14);}
+    50%{box-shadow:0 -12px 34px rgba(255,220,160,.4),inset 0 0 22px rgba(255,210,140,.16);}
+  }
+  /* 白底立绘手机端:更大、离正常立绘更远 */
+  .rv-back{transform:translateX(11%) scale(1.2);}
 }
 
 /* ---- 普瑞塞斯 meta 前置层(在所有 UI 之前) ---- */
@@ -839,13 +869,13 @@ body{
   <div class="end-info">
     <div class="op-kicker">测试结束</div>
   </div>
-  <!-- 右侧黑区:上方问句(白字),下方身份卡 -->
+  <!-- 右侧黑区:问句(白字)独立定位,身份卡在下方 -->
+  <div class="op-ask">
+    <span class="op-ask-l">你要找的人是</span>
+    <div class="op-name"></div>
+    <span class="op-ask-r">吗？</span>
+  </div>
   <div class="end-right">
-    <div class="op-ask">
-      <span class="op-ask-l">你要找的人是</span>
-      <div class="op-name"></div>
-      <span class="op-ask-r">吗？</span>
-    </div>
     <div class="id-card">
       <div class="id-mark" aria-hidden="true"></div>
       <div class="id-title">身份确认</div>
