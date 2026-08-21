@@ -522,12 +522,23 @@ body{
     text-shadow:0 2px 20px rgba(0,0,0,.85),0 0 40px rgba(120,160,220,.4);}
   .id-card{max-width:none;width:100%;margin-top:12px;
     background:rgba(10,14,20,.78);}
-  .pull-bar .pb-side{display:none;}
-  /* 单独手机适配:关闭整块 opacity 明灭(闪烁),文字常亮,只保留底部辉光呼吸 */
-  #ending.shifted .pull-bar{animation:pullGlowM 1.6s ease-in-out infinite;opacity:1;}
+  /* 手机端:保留左侧"系统日志",右侧"机密"占位隐藏,维持中间文案居中 */
+  .pull-bar{padding:0 14px;}
+  .pull-bar .pb-side{display:block;font-size:10px;letter-spacing:.18em;
+    flex:0 0 auto;max-width:22vw;}
+  .pull-bar .pb-side:last-child{visibility:hidden;}
+  .pull-bar .pb-mid{font-size:13px;letter-spacing:.18em;}
+  /* 单独手机适配:低配慢速呼吸,消除光敏闪烁 */
+  #ending.shifted .pull-bar{animation:pullGlowM 5s ease-in-out infinite;opacity:1;}
   @keyframes pullGlowM{
-    0%,100%{box-shadow:0 -8px 22px rgba(255,196,120,.14);}
-    50%{box-shadow:0 -12px 34px rgba(255,220,160,.4),inset 0 0 22px rgba(255,210,140,.16);}
+    0%,100%{box-shadow:0 -8px 20px rgba(255,196,120,.12);}
+    50%{box-shadow:0 -10px 28px rgba(255,220,160,.28);}
+  }
+  /* 箭头:关掉0.9s快速明灭,改慢速低幅呼吸(几乎不闪,只做提示) */
+  .pull-bar .pb-mid i{animation:pullChevM 5s ease-in-out infinite;}
+  @keyframes pullChevM{
+    0%,100%{transform:translateY(0);opacity:.72;}
+    50%{transform:translateY(-3px);opacity:.92;}
   }
   /* 白底立绘手机端:更大、离正常立绘更远 */
   .rv-back{transform:translateX(11%) scale(1.2);}
