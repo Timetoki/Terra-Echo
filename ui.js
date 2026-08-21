@@ -226,6 +226,8 @@ const UI = (() => {
     if (op && op.file) {
       box.querySelector(".rv-sil").src = `assets/silhouettes/${op.file}`;
       box.querySelector(".rv-real").src = `assets/portraits/${op.file}`;
+      const back = box.querySelector(".rv-back");
+      if (back) back.src = `assets/silhouettes/${op.file}`;
     }
 
     const name = op ? op.name : "???";
