@@ -267,29 +267,29 @@ body{
 #ending.bloomed .eye-mask{opacity:0;}
 
 /* 白光绽开:中心亮核 + 水波涟漪环,停留更久 */
-.rv-bloom{position:absolute;left:50%;top:42%;width:10%;height:10%;
-  transform:translate(-50%,-50%);border-radius:50%;
+.rv-bloom{position:absolute;left:50%;top:42%;width:40vmin;height:40vmin;
+  transform:translate(-50%,-50%) scale(.15);border-radius:50%;
   background:radial-gradient(circle,#fff,rgba(234,244,255,.9) 28%,transparent 68%);
   opacity:0;pointer-events:none;z-index:5;
-  filter:url(#ripple);}
+  filter:url(#ripple);will-change:transform,opacity;}
 #ending.bloomed .rv-bloom{animation:bloom 2s cubic-bezier(.2,.6,.25,1) forwards;}
 @keyframes bloom{
-  0%{opacity:0;width:6%;height:6%;}
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.15);}
   18%{opacity:1;}
-  50%{opacity:1;width:120%;height:120%;}   /* 中段保持最亮,停留久 */
+  50%{opacity:1;transform:translate(-50%,-50%) scale(3);}   /* 中段最亮,停留久 */
   70%{opacity:.85;}
-  100%{opacity:0;width:260%;height:260%;}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(6.5);}
 }
-/* 水波涟漪环:向外扩散的光环 */
+/* 水波涟漪环:向外扩散的光环(scale 代替 width/height,免重排) */
 .rv-bloom::before,.rv-bloom::after{content:"";position:absolute;
   left:50%;top:50%;width:100%;height:100%;
-  transform:translate(-50%,-50%);border-radius:50%;
+  transform:translate(-50%,-50%) scale(.2);border-radius:50%;
   border:2px solid rgba(234,244,255,.6);opacity:0;}
 #ending.bloomed .rv-bloom::before{animation:rippleRing 2s ease-out .1s forwards;}
 #ending.bloomed .rv-bloom::after{animation:rippleRing 2s ease-out .5s forwards;}
 @keyframes rippleRing{
-  0%{opacity:.7;width:20%;height:20%;border-width:3px;}
-  100%{opacity:0;width:320%;height:320%;border-width:0;}
+  0%{opacity:.7;transform:translate(-50%,-50%) scale(.2);border-width:3px;}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(3.2);border-width:0;}
 }
 
 /* 彩色立绘:绽开后浮现。object-position 下移一档,露出头顶不被切 */
@@ -378,9 +378,8 @@ body{
 }
 /* 飘浮发光尘埃:缓慢上升+左右漂移+轻微明灭 */
 .fx-flare .fdust{position:absolute;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(210,232,255,.5) 50%,transparent 75%);
-  box-shadow:0 0 6px rgba(224,238,255,.7);
-  animation:fdustFloat linear infinite;will-change:transform,opacity;}
+  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(210,232,255,.55) 40%,transparent 72%);
+  animation:fdustFloat linear infinite;}
 @keyframes fdustFloat{
   0%{transform:translate(0,0);opacity:0;}
   12%{opacity:var(--fo,.8);}
@@ -610,6 +609,12 @@ body{
   /* ===== 手机端结算页/白光炸开降级(不影响闪光灰尘fdust、标题水泡) ===== */
   /* 白光绽开去掉 feTurbulence 水波滤镜(手机最耗),保留绽放+涟漪环 */
   .rv-bloom{filter:none;}
+  /* 白底立绘:手机端保留辉光呼吸,但用单层drop-shadow(比桌面双层轻) */
+  #ending.bloomed .rv-back{animation:backGlowM 4.5s ease-in-out infinite;}
+  @keyframes backGlowM{
+    0%,100%{filter:drop-shadow(0 0 14px rgba(200,224,255,.5));}
+    50%{filter:drop-shadow(0 0 24px rgba(224,238,255,.75));}
+  }
   /* 柔光团大幅降 blur */
   .fx-flare .haze{filter:blur(30px);}
   /* 结算页内实时背景模糊改静态半透明,省 GPU */
