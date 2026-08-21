@@ -243,6 +243,8 @@ const UI = (() => {
     const noEl = $("#op-data-no");
     if (noEl) noEl.textContent = "#" + dataNo(op);
 
+    if (op && op.code) bumpTally(op.code);
+
     buildHaze(box.querySelector(".haze-wrap"));
 
     box.classList.remove("blink", "bloomed", "shifted");
@@ -290,6 +292,59 @@ const UI = (() => {
       layer.appendChild(d);
     }
   }
+
+  /* ---- 全球榜单(本机 localStorage 计数 + 基础种子;真全球统计待接计数服务) ---- */
+  const TALLY_KEY = "terra_echo_tally_v1";
+  // 基础种子:让榜单初始就有内容(code: 次数)。本机寻找会在此之上累加。
+  const SEED = {
+    amiya: 128, texas: 96, kalts: 84, chen: 77, skadi2: 71,
+    nearl2: 65, wisdel: 58, angel: 52, blaze2: 47, texas2: 41,
+  };
+  function loadTally() {
+    try { return JSON.parse(localStorage.getItem(TALLY_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function bumpTally(code) {
+    try {
+      const t = loadTally();
+      t[code] = (t[code] || 0) + 1;
+      localStorage.setItem(TALLY_KEY, JSON.stringify(t));
+    } catch (e) {}
+  }
+  function mergedTally() {
+    const local = loadTally();
+    const out = Object.assign({}, SEED);
+    for (const k in local) out[k] = (out[k] || 0) + local[k];
+    return out;
+  }
+  function opByCode(code) {
+    if (typeof OPERATORS === "undefined") return null;
+    return OPERATORS.find(o => o.code === code) || null;
+  }
+  function renderGlobalList() {
+    const list = $("#gp-list");
+    if (!list) return;
+    const t = mergedTally();
+    const rows = Object.keys(t)
+      .map(code => ({ code, n: t[code], op: opByCode(code) }))
+      .filter(r => r.op)
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 10);
+    list.innerHTML = "";
+    rows.forEach((r, i) => {
+      const li = document.createElement("li");
+      li.innerHTML =
+        `<span class="gp-rank">${i + 1}</span>` +
+        `<span class="gp-ava"><img src="assets/portraits/${r.op.file}" alt=""></span>` +
+        `<span class="gp-nm">${r.op.name}</span>` +
+        `<span class="gp-ct"><b>${r.n}</b>次</span>`;
+      list.appendChild(li);
+    });
+  }
+  function openGlobal() { renderGlobalList(); $("#global-panel").classList.add("show"); }
+  function closeGlobal() { $("#global-panel").classList.remove("show"); }
+  function openCredit() { $("#credit-panel").classList.add("show"); }
+  function closeCredit() { $("#credit-panel").classList.remove("show"); }
 
   /* ---- 重逢剧情:点击底栏或上拉后升起半透明层 ---- */
   function startReunion() {
@@ -490,7 +545,8 @@ const UI = (() => {
 
   return { initScene, setBackground, setSilhouetteStage, renderNode,
            showEnding, showPrologueMeta, showPriestess,
-           startReunion };
+           startReunion,
+           openGlobal, closeGlobal, openCredit, closeCredit };
 })();
 
 /* ---- 剪影 SVG:抽象人形(阶段2) ---- */

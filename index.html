@@ -453,10 +453,69 @@ body{
   border-top:1px solid rgba(255,255,255,.14);padding-top:5px;color:#9aa3b0;}
 .id-row span{flex:0 0 4.2em;}
 .id-row b{color:#f2f5fa;font-weight:700;letter-spacing:.04em;text-align:right;line-height:1.35;}
-#replay{grid-column:2;justify-self:start;margin-top:4px;background:none;
-  border:1px solid #cdd4de;color:#eef1f6;padding:8px 14px;letter-spacing:.28em;
+.id-btns{grid-column:2;display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;}
+#replay,#view-global{background:none;
+  border:1px solid #cdd4de;color:#eef1f6;padding:8px 14px;letter-spacing:.24em;
   font-family:"Noto Serif SC","Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:13px;cursor:pointer;}
-#replay:hover{background:#eef1f6;color:#111;}
+#replay:hover,#view-global:hover{background:#eef1f6;color:#111;}
+#view-global{border-color:#e9c98f;color:#f3e3c2;}
+#view-global:hover{background:#e9c98f;color:#111;}
+
+/* ===== 全球榜单弹层 ===== */
+#global-panel,#credit-panel{position:fixed;inset:0;z-index:70;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(6,9,14,.72);backdrop-filter:blur(8px);
+  font-family:"Noto Serif SC","Songti SC","SimSun","Noto Serif CJK SC",serif;}
+#global-panel.show,#credit-panel.show{display:flex;}
+.gp-box{position:relative;width:min(92vw,560px);max-height:82vh;overflow:hidden;
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(18,24,34,.96),rgba(12,16,24,.98));
+  border:1px solid rgba(200,210,225,.28);
+  box-shadow:0 24px 80px rgba(0,0,0,.6);}
+.gp-head{position:relative;display:flex;align-items:center;gap:12px;
+  padding:20px 22px 8px;flex-wrap:wrap;}
+.gp-title{font-size:1.32rem;font-weight:700;letter-spacing:.14em;color:#eef2f8;
+  text-shadow:0 0 20px rgba(120,160,220,.4);}
+.gp-credit{margin-left:auto;background:none;border:1px solid rgba(233,201,143,.6);
+  color:#e9c98f;font-family:inherit;font-size:11px;letter-spacing:.1em;
+  padding:5px 10px;cursor:pointer;white-space:nowrap;}
+.gp-credit:hover{background:rgba(233,201,143,.16);}
+.gp-close,.cp-close{position:absolute;top:12px;right:14px;background:none;border:none;
+  color:#aeb6c2;font-size:24px;line-height:1;cursor:pointer;padding:2px 6px;}
+.gp-close{position:static;margin-left:4px;}
+.gp-close:hover,.cp-close:hover{color:#fff;}
+.gp-sub{padding:0 22px 12px;font-size:.8rem;letter-spacing:.2em;color:#8b93a0;
+  border-bottom:1px solid rgba(255,255,255,.08);}
+.gp-list{list-style:none;margin:0;padding:8px 14px 18px;overflow-y:auto;}
+.gp-list li{display:flex;align-items:center;gap:14px;padding:9px 8px;
+  border-bottom:1px solid rgba(255,255,255,.06);}
+.gp-rank{flex:0 0 1.6em;text-align:center;font-size:1.05rem;font-weight:700;
+  color:#7f8794;font-variant-numeric:tabular-nums;}
+.gp-list li:nth-child(1) .gp-rank{color:#f2d98c;}
+.gp-list li:nth-child(2) .gp-rank{color:#d6dde6;}
+.gp-list li:nth-child(3) .gp-rank{color:#d9a66b;}
+.gp-ava{flex:0 0 46px;width:46px;height:46px;border-radius:50%;overflow:hidden;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);}
+.gp-ava img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+.gp-nm{flex:1;font-size:1.02rem;color:#e8ecf2;letter-spacing:.04em;}
+.gp-ct{flex:0 0 auto;font-size:.86rem;color:#9aa3b0;font-variant-numeric:tabular-nums;}
+.gp-ct b{color:#e9c98f;font-size:1rem;margin-right:.2em;}
+
+/* ===== 制作组信息弹层 ===== */
+.cp-box{position:relative;width:min(90vw,420px);
+  background:linear-gradient(180deg,rgba(18,24,34,.97),rgba(12,16,24,.99));
+  border:1px solid rgba(200,210,225,.28);padding:30px 28px 34px;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);}
+.cp-title{font-size:1.2rem;font-weight:700;letter-spacing:.16em;color:#eef2f8;
+  margin-bottom:22px;text-align:center;}
+.cp-members{display:flex;flex-direction:column;gap:18px;}
+.cp-member{display:flex;align-items:center;gap:16px;}
+.cp-avatar{flex:0 0 56px;width:56px;height:56px;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,rgba(120,160,220,.25),rgba(40,50,64,.6));
+  border:1px solid rgba(200,210,225,.3);}
+.cp-info{display:flex;flex-direction:column;gap:3px;}
+.cp-role{font-size:.78rem;letter-spacing:.2em;color:#8b93a0;}
+.cp-name{font-size:1.15rem;color:#eef2f8;letter-spacing:.1em;}
 
 .pull-bar{position:absolute;left:0;right:0;bottom:0;z-index:8;height:78px;
   display:flex;align-items:center;justify-content:space-between;
@@ -509,15 +568,15 @@ body{
 
 @media(max-width:760px){
   #ending{overflow:hidden;}
-  .end-info{width:auto;padding:44px 5vw 0 5vw;}
+  .end-info{width:auto;padding:64px 5vw 0 5vw;}
   /* 右侧浮层在手机改为底部全宽,靠左对齐 */
   .end-right{top:auto;bottom:96px;right:auto;left:0;
     width:100%;padding:0 5vw;align-items:flex-start;text-align:left;}
   /* 问句单独提到顶部偏右、放大 */
   .op-ask{position:absolute;top:88px;right:4vw;left:auto;
     text-align:right;z-index:6;max-width:92vw;}
-  .op-ask-l,.op-ask-r{font-size:clamp(.92rem,4.2vw,1.1rem);}
-  .op-name{font-size:clamp(2.3rem,11.5vw,3.4rem);letter-spacing:.02em;
+  .op-ask-l,.op-ask-r{font-size:clamp(1.05rem,4.8vw,1.28rem);}
+  .op-name{font-size:clamp(2.7rem,13vw,4rem);letter-spacing:.02em;
     white-space:nowrap;margin:.06em 0;
     text-shadow:0 2px 20px rgba(0,0,0,.85),0 0 40px rgba(120,160,220,.4);}
   .id-card{max-width:none;width:100%;margin-top:12px;
@@ -528,18 +587,10 @@ body{
     flex:0 0 auto;max-width:22vw;}
   .pull-bar .pb-side:last-child{visibility:hidden;}
   .pull-bar .pb-mid{font-size:13px;letter-spacing:.18em;}
-  /* 单独手机适配:低配慢速呼吸,消除光敏闪烁 */
-  #ending.shifted .pull-bar{animation:pullGlowM 5s ease-in-out infinite;opacity:1;}
-  @keyframes pullGlowM{
-    0%,100%{box-shadow:0 -8px 20px rgba(255,196,120,.12);}
-    50%{box-shadow:0 -10px 28px rgba(255,220,160,.28);}
-  }
-  /* 箭头:关掉0.9s快速明灭,改慢速低幅呼吸(几乎不闪,只做提示) */
-  .pull-bar .pb-mid i{animation:pullChevM 5s ease-in-out infinite;}
-  @keyframes pullChevM{
-    0%,100%{transform:translateY(0);opacity:.72;}
-    50%{transform:translateY(-3px);opacity:.92;}
-  }
+  /* 手机端:彻底关闭所有呼吸/明灭动画,静态常亮,避免光敏闪烁 */
+  #ending.shifted .pull-bar{animation:none;opacity:1;
+    box-shadow:0 -10px 26px rgba(255,210,140,.22);}
+  .pull-bar .pb-mid i{animation:none;opacity:.85;transform:none;}
   /* 白底立绘手机端:更大、离正常立绘更远 */
   .rv-back{transform:translateX(11%) scale(1.2);}
 }
@@ -896,7 +947,10 @@ body{
       <div class="id-row"><span>出身地</span><b class="id-origin"></b></div>
       <div class="id-row"><span>种族</span><b class="id-race"></b></div>
       <div class="id-row"><span>子职业</span><b class="id-class"></b></div>
-      <button id="replay">再寻找一次</button>
+      <div class="id-btns">
+        <button id="replay">再寻找一次</button>
+        <button id="view-global">查看全球</button>
+      </div>
     </div>
   </div>
   <div class="pull-bar" id="pull-bar">
@@ -908,7 +962,35 @@ body{
     <span class="pb-side">机密</span>
   </div>
 </div>
-<!-- 重逢剧情覆盖层(点击/上拉后从下方升起,半透明盖住结算页) -->
+<!-- 全球榜单弹层 -->
+<div id="global-panel">
+  <div class="gp-box">
+    <div class="gp-head">
+      <div class="gp-title">实时数据反馈</div>
+      <button class="gp-credit" id="open-credit">请联系可露希尔制作组！</button>
+      <button class="gp-close" id="close-global" aria-label="关闭">×</button>
+    </div>
+    <div class="gp-sub">被寻找次数 · 前十</div>
+    <ol class="gp-list" id="gp-list"></ol>
+  </div>
+</div>
+<!-- 制作组信息弹层 -->
+<div id="credit-panel">
+  <div class="cp-box">
+    <button class="cp-close" id="close-credit" aria-label="关闭">×</button>
+    <div class="cp-title">可露希尔制作组</div>
+    <div class="cp-members">
+      <div class="cp-member">
+        <div class="cp-avatar" aria-hidden="true"></div>
+        <div class="cp-info"><span class="cp-role">制作人</span><b class="cp-name">时</b></div>
+      </div>
+      <div class="cp-member">
+        <div class="cp-avatar" aria-hidden="true"></div>
+        <div class="cp-info"><span class="cp-role">技术指导</span><b class="cp-name">朔</b></div>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="reunion-scene">
   <div class="rs-bg"></div>
   <div class="rs-textbox">
@@ -1004,6 +1086,13 @@ body{
   document.getElementById("replay").addEventListener("click",()=>location.reload());
   document.getElementById("replay-meta").addEventListener("click",()=>location.reload());
   document.getElementById("pull-bar").addEventListener("click",()=>UI.startReunion());
+  document.getElementById("view-global").addEventListener("click",()=>UI.openGlobal());
+  document.getElementById("close-global").addEventListener("click",()=>UI.closeGlobal());
+  document.getElementById("open-credit").addEventListener("click",()=>UI.openCredit());
+  document.getElementById("close-credit").addEventListener("click",()=>UI.closeCredit());
+  // 点遮罩空白处关闭
+  document.getElementById("global-panel").addEventListener("click",(e)=>{ if(e.target.id==="global-panel") UI.closeGlobal(); });
+  document.getElementById("credit-panel").addEventListener("click",(e)=>{ if(e.target.id==="credit-panel") UI.closeCredit(); });
 </script>
 </body>
 </html>
